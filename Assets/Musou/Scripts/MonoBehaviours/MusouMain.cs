@@ -65,7 +65,7 @@ namespace MusouEcs
                 _spineAnimation.AnimationState.SetAnimation(0, "idle", true);
                 _isPlayerStop = true;
             }
-            else if (_isPlayerStop)
+            else if (_playerLastPos != curPos && _isPlayerStop)
             {
                 _spineAnimation.AnimationState.SetAnimation(0, "walk", true);
                 _isPlayerStop = false;

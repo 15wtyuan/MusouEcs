@@ -23,8 +23,8 @@ namespace MusouEcs
             Main = GetComponent<Camera>();
             Inst = this;
             DontDestroyOnLoad(Main);
-            Main.transparencySortMode = TransparencySortMode.CustomAxis;
-            Main.transparencySortAxis = new Vector3(0, 1, -1);
+            // Main.transparencySortMode = TransparencySortMode.CustomAxis;
+            // Main.transparencySortAxis = new Vector3(0, 1, -1);
         }
 
         private void OnDestroy()

@@ -14,6 +14,8 @@ namespace MusouEcs
     {
         private ORCABundle<Agent> _bundle;
         private Dictionary<Entity, Agent> _entity2AgentMap;
+        private Agent _playerAgent;
+        private float3 _playerLastPos = float3.zero;
 
         protected override void OnCreate()
         {
@@ -27,6 +29,27 @@ namespace MusouEcs
 
         protected override void OnUpdate()
         {
+            var deltaTime = SystemAPI.Time.DeltaTime;
+            
+            var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
+            var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
+            if (_playerAgent == null)
+            {
+                _playerAgent = _bundle.agents.Add(float3.zero);
+                _playerAgent.prefVelocity = float3.zero;
+                _playerAgent.maxSpeed = 0;
+                _playerAgent.radius = 0.4f;
+                _playerAgent.radiusObst = 0.4f;
+                _playerLastPos = float3.zero;
+                _playerAgent.layerOccupation = ORCALayer.L0;
+                _playerAgent.layerIgnore = ORCALayer.L0;
+            }
+
+            var de = playerTransform.Position - _playerLastPos;
+            _playerLastPos = playerTransform.Position;
+            _playerAgent.prefVelocity = math.normalizesafe(de);
+            _playerAgent.maxSpeed = math.length(de) / deltaTime;
+
             foreach (var (transform, directionData, speedData, entity) in
                      SystemAPI.Query<RefRO<LocalTransform>, RefRO<OrcaDynamicData>, RefRO<SpeedData>>()
                          .WithEntityAccess())
@@ -46,10 +69,10 @@ namespace MusouEcs
                     agent.radiusObst = orcaSharedData.RadiusObst;
                     agent.maxNeighbors = orcaSharedData.MaxNeighbors;
                     agent.neighborDist = orcaSharedData.NeighborDist;
+                    agent.layerOccupation = ORCALayer.L0;
                 }
             }
 
-            var deltaTime = SystemAPI.Time.DeltaTime;
             if (_bundle.orca.TryComplete())
             {
                 foreach (var (transform, directionData, entity) in

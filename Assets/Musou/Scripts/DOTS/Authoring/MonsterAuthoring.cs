@@ -32,12 +32,12 @@ namespace MusouEcs
                 {
                     AtlasData = new Vector4(authoring.atlasSize.x, authoring.atlasSize.y, 1, 1),
                 });
-
+                
                 AddComponent(entity, new MusouSpriteAniData
                 {
                     CurFrame = 1,
                 });
-
+                
                 var scale = new float3(1, 1, 1);
                 if (authoring.texSize.x > authoring.texSize.y)
                 {
@@ -47,7 +47,7 @@ namespace MusouEcs
                 {
                     scale.x = authoring.texSize.x / authoring.texSize.y;
                 }
-
+                
                 AddSharedComponent(entity, new MusouSpriteAniSharedData
                 {
                     BeginFarme = authoring.beginFarme,
@@ -55,6 +55,32 @@ namespace MusouEcs
                     FrameRate = authoring.frameRate,
                     Scale = scale,
                 });
+                
+                // // 怪物渲染相关
+                // AddComponent(entity, new MusouRenderAniData());
+                //
+                // AddComponent(entity, new MusouRenderFrameData
+                // {
+                //     CurFrame = 1,
+                // });
+                //
+                // var scale = new float3(1, 1, 1);
+                // if (authoring.texSize.x > authoring.texSize.y)
+                // {
+                //     scale.y = authoring.texSize.y / authoring.texSize.x;
+                // }
+                // else if (authoring.texSize.x < authoring.texSize.y)
+                // {
+                //     scale.x = authoring.texSize.x / authoring.texSize.y;
+                // }
+                //
+                // AddSharedComponent(entity, new MusouRenderAniSharedData
+                // {
+                //     BeginFarme = authoring.beginFarme,
+                //     EndFarme = authoring.endFarme,
+                //     FrameRate = authoring.frameRate,
+                //     Scale = scale,
+                // });
 
                 //怪物移动相关
                 AddComponent(entity, new SpeedData
