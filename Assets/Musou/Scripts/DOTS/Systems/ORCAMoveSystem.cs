@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Nebukam.Common;
 using Nebukam.ORCA;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -9,6 +8,7 @@ using Unity.Transforms;
 namespace MusouEcs
 {
     [UpdateInGroup(typeof(MusouUpdateGroup))]
+    [RequireMatchingQueriesForUpdate]
     [UpdateAfter(typeof(MonsterMoveToPlayerSystem))]
     public partial class ORCAMoveSystem : SystemBase
     {
@@ -20,6 +20,8 @@ namespace MusouEcs
         protected override void OnCreate()
         {
             base.OnCreate();
+            
+            RequireForUpdate<OrcaDynamicData>();
 
             _bundle = new ORCABundle<Agent>();
             _bundle.plane = AxisPair.XY;
@@ -75,7 +77,7 @@ namespace MusouEcs
 
             if (_bundle.orca.TryComplete())
             {
-                foreach (var (transform, directionData, entity) in
+                foreach (var (transform, orcaDynamicData, entity) in
                          SystemAPI.Query<RefRW<LocalTransform>, RefRO<OrcaDynamicData>>().WithEntityAccess())
                 {
                     if (_entity2AgentMap.TryGetValue(entity, out var value))

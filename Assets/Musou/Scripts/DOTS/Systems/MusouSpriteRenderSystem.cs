@@ -65,11 +65,18 @@ namespace MusouEcs
 
 
     [UpdateInGroup(typeof(MusouUpdateGroup))]
+    [RequireMatchingQueriesForUpdate]
     [UpdateAfter(typeof(MusouSpritePreRenderSystem))]
     public partial class MusouSpriteRenderSystem : SystemBase
     {
         private NativeQueue<RenderData> _nativeQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
+
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireForUpdate<MusouSpriteData>();
+        }
 
         protected override void OnUpdate()
         {
