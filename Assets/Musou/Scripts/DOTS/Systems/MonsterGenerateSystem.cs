@@ -32,6 +32,8 @@ namespace MusouEcs
         public void OnStartRunning(ref SystemState state)
         {
             var generator = SystemAPI.GetSingleton<MonsterGeneratorData>();
+            var generateCnt = generator.CntX * generator.CntY;
+            SharedStaticMonsterData.SharedValue.Data = new SharedStaticMonsterData(generateCnt);
             var monsters = CollectionHelper.CreateNativeArray<Entity>(generator.CntX * generator.CntY, Allocator.Temp);
             state.EntityManager.Instantiate(generator.MonsterProtoType, monsters);
 

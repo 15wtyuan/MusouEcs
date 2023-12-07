@@ -1,4 +1,6 @@
-﻿using FairyGUI;
+﻿using System;
+using BurstGridSearch;
+using FairyGUI;
 using Spine.Unity;
 using UnityEngine;
 
@@ -14,14 +16,26 @@ namespace MusouEcs
         private GTextField _text;
         private JoystickModule _joystick;
         private Coroutine _coroutine;
-
         private SkeletonAnimation _spineAnimation;
         private Vector2 _playerLastPos;
         private bool _isPlayerStop;
-
         private MusouMapMgr _mapMgr;
-
         private int _face = 1;
+
+        public static MusouMain Inst;
+
+        private GridSearchBurst _gsb;
+        public GridSearchBurst Gsb => _gsb;
+
+        private void Awake()
+        {
+            Inst = this;
+        }
+
+        private void OnDestroy()
+        {
+            Inst = null;
+        }
 
         private void Start()
         {
@@ -54,6 +68,8 @@ namespace MusouEcs
                 Target = simulatePlayer.transform,
                 MapMgr = _mapMgr,
             });
+
+            _gsb = new GridSearchBurst(-1, 28);
         }
 
         private void Update()
@@ -92,7 +108,7 @@ namespace MusouEcs
             _spineAnimation.transform.rotation = Quaternion.Euler(0, face > 0 ? 0 : 180, 0);
         }
 
-        private void ChangePlayerMoveDir(Vector3 dir)
+        private static void ChangePlayerMoveDir(Vector3 dir)
         {
             SharedStaticPlayerData.SharedValue.Data.PlayerMoveDir = dir;
         }

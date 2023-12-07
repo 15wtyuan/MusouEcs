@@ -28,6 +28,11 @@ namespace Musou.Scripts.DOTS.Systems
                 var delta = new float3(force) * (speedData.ValueRO.Speed * deltaTime);
 
                 transform.ValueRW.Position += delta;
+                if (delta.x != 0)
+                {
+                    SharedStaticPlayerData.SharedValue.Data.PlayerFace = delta.x > 0 ? 1 : -1;
+                }
+
                 SharedStaticPlayerData.SharedValue.Data.PlayerPosition = (Vector3)transform.ValueRW.Position;
             }
         }

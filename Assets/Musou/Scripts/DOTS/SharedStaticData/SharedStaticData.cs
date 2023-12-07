@@ -15,4 +15,17 @@ namespace MusouEcs
         public Vector2 PlayerPosition;
         public int PlayerFace;
     }
+
+    public struct SharedStaticMonsterData
+    {
+        public static readonly SharedStatic<SharedStaticMonsterData> SharedValue
+            = SharedStatic<SharedStaticMonsterData>.GetOrCreate<SharedStaticMonsterData>();
+
+        public NativeHashMap<int, Entity> GsbIndex2MonsterEntity;
+
+        public SharedStaticMonsterData(int initialCapacity)
+        {
+            GsbIndex2MonsterEntity = new NativeHashMap<int, Entity>(initialCapacity, Allocator.Persistent);
+        }
+    }
 }
