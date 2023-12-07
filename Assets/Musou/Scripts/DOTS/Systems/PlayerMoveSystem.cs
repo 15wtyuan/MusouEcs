@@ -5,7 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
-namespace Musou.Scripts.DOTS.Systems
+namespace MusouEcs
 {
     [UpdateInGroup(typeof(MusouUpdateGroup))]
     [CreateAfter(typeof(PlayerGenerateSystem))]

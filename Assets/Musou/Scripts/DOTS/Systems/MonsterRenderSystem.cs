@@ -3,7 +3,7 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 
-namespace Musou.Scripts.DOTS.Systems
+namespace MusouEcs
 {
     [BurstCompile]
     [RequireMatchingQueriesForUpdate]

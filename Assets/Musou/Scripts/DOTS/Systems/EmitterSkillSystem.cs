@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace MusouEcs
 {
-    [BurstCompile]
     [RequireMatchingQueriesForUpdate]
     [UpdateInGroup(typeof(MusouUpdateGroup))]
     public partial class EmitterSkillSystem : SystemBase
@@ -34,29 +33,28 @@ namespace MusouEcs
                     // 确定发射方向
                     var createDir = GetCreateDir((EmitterDirType)emitterData.ValueRO.EmitterDirType);
 
-                    //子弹发射角度
-                    // var dir = createDir.RotatedByDegrees(perChangeDegrees * i);
-                    // if (skillLevelConfig.diffDirection != 1)
-                    // {
-                    //     if (skillLevelConfig.direction == (int)AttackDirectionType.CloserTarget)
-                    //     {
-                    //         dir = (target.GetFixPosition() - createPos).normalized;
-                    //     }
-                    //     else if (skillLevelConfig.direction == (int)AttackDirectionType.Random)
-                    //     {
-                    //         //为了让技能不重叠起来，这里面应该是各个方向都有概率
-                    //         var changeDegrees = 360f / bulletCount;
-                    //         var randomDegree = Random.Range(0, changeDegrees);
-                    //         dir = createDir.RotatedByDegrees(changeDegrees * i + randomDegree);
-                    //     }
-                    // }
-                    //
-                    // if (skillLevelConfig.flyBeginAngle > 0f)
-                    // {
-                    //     dir = dir.RotatedByDegrees(skillLevelConfig.flyBeginAngle);
-                    // }
-                    //
-                    // var emitterPos = createPos + offsetPos.RotatedByDegrees(Vector2.SignedAngle(Vector2.right, dir));
+                    // 子弹发射角度
+                    var perChangeDegrees = 0f;
+                    var bulletCount = emitterData.ValueRO.BulletCount;
+                    if (bulletCount > 1)
+                    {
+                        var angleRange = emitterData.ValueRO.AngleRange;
+                        createDir = createDir.RotatedByDegrees(-angleRange / 2f);
+                        if (angleRange == 360)
+                        {
+                            perChangeDegrees = angleRange / 1f / (bulletCount);
+                        }
+                        else
+                        {
+                            perChangeDegrees = angleRange / 1f / (bulletCount - 1);
+                        }
+                    }
+
+                    for (int i = 0; i < bulletCount; i++)
+                    {
+                        // var dir = createDir.RotatedByDegrees(perChangeDegrees * i);
+                        // var emitterPos = createPos + offsetPos.RotatedByDegrees(Vector2.SignedAngle(Vector2.right, dir));
+                    }
                 }
             }
         }

@@ -7,9 +7,13 @@ namespace MusouEcs
     {
     }
 
+    public struct SkillDamageTag : IComponentData
+    {
+    }
+
     public struct SkillDamageData : ISharedComponentData
     {
-        public float3 DamageRadius;
+        public float DamageRadius;
         public int Damage;
     }
 
@@ -18,6 +22,11 @@ namespace MusouEcs
     {
         public float3 Delta;
         public float3 FollowPosDelta;
+    }
+
+    public struct BulletFollowPlayerData : IComponentData
+    {
+        public float3 LastPlayerPos;
     }
 
     public struct BulletBornData : IComponentData
@@ -62,7 +71,9 @@ namespace MusouEcs
     {
         public Entity BulletProtoType;
         public float EmitterInterval;
+        public float CreateOffset;
         public int BulletCount;
+        public float AngleRange;
         public int EmitterDirType;
     }
 

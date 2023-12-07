@@ -11,5 +11,6 @@ namespace MusouEcs
 
     public struct MonsterData : IComponentData
     {
+        public int Hp;
     }
 }
