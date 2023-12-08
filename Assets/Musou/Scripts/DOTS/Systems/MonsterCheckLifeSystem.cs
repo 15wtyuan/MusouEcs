@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace MusouEcs
@@ -18,19 +19,38 @@ namespace MusouEcs
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            foreach (var (monsterData, entity) in
-                     SystemAPI.Query<RefRW<MonsterData>>().WithEntityAccess())
+            EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
+            EntityCommandBuffer.ParallelWriter ecbParallel = ecb.AsParallelWriter();
+
+            var job = new MonsterCheckLifeJob
             {
-                if (monsterData.ValueRO.Hp <= 0)
-                {
-                    state.EntityManager.DestroyEntity(entity);
-                }
-            }
+                Ecb = ecbParallel
+            };
+
+            state.Dependency = job.ScheduleParallel(state.Dependency);
+            state.Dependency.Complete();
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
+        }
+    }
+
+    [BurstCompile]
+    public partial struct MonsterCheckLifeJob : IJobEntity
+    {
+        public EntityCommandBuffer.ParallelWriter Ecb;
+
+        private void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref MonsterData monsterData)
+        {
+            if (monsterData.Hp <= 0)
+            {
+                Ecb.AddComponent<OrcaCleanUpData>(chunkIndex, entity);
+                Ecb.DestroyEntity(chunkIndex, entity);
+            }
         }
     }
 }

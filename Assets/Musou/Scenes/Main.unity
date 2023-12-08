@@ -411,7 +411,7 @@ Transform:
   m_GameObject: {fileID: 1196843246}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.0142097, y: -5, z: 0}
+  m_LocalPosition: {x: 3.75, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -524,7 +524,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.017761989, y: 0.017761989, z: 0.017761989}
+  m_LocalScale: {x: 0.0048828125, y: 0.0048828125, z: 0.0048828125}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -574,7 +574,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uiPanel: {fileID: 1487190197}
-  simulatePlayerPrefab: {fileID: 7700231840230935892, guid: b796222afe447614daba352698f4e3c2, type: 3}
+  simulatePlayerPrefab: {fileID: 183106836090086622, guid: 716fbbb8278d6a14090c138d29a0bd5a, type: 3}
   mapPath: Background/bg
 --- !u!4 &1710018946
 Transform:

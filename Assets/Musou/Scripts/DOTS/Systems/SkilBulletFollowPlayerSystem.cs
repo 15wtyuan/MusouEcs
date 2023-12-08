@@ -7,7 +7,7 @@ namespace MusouEcs
     [BurstCompile]
     [RequireMatchingQueriesForUpdate]
     [UpdateInGroup(typeof(MusouUpdateGroup))]
-    [UpdateAfter(typeof(PlayerMoveSystem))]
+    [UpdateAfter(typeof(ORCAMoveSystem))]
     public partial struct SkilBulletFollowPlayerSystem : ISystem
     {
         [BurstCompile]
@@ -22,12 +22,12 @@ namespace MusouEcs
         public void OnUpdate(ref SystemState state)
         {
             var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
-            var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
+            var playerTransform = SystemAPI.GetComponentRO<LocalTransform>(playerEntity);
             foreach (var (translateData, followPlayerData) in
                      SystemAPI.Query<RefRW<BulletTranslateData>, RefRW<BulletFollowPlayerData>>())
             {
-                var delta = playerTransform.Position - followPlayerData.ValueRO.LastPlayerPos;
-                followPlayerData.ValueRW.LastPlayerPos = playerTransform.Position;
+                var delta = playerTransform.ValueRO.Position - followPlayerData.ValueRO.LastPlayerPos;
+                followPlayerData.ValueRW.LastPlayerPos = playerTransform.ValueRO.Position;
                 translateData.ValueRW.FollowPosDelta += delta;
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Nebukam.Common;
 using Nebukam.ORCA;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
@@ -12,6 +13,7 @@ namespace MusouEcs
     [UpdateAfter(typeof(MonsterMoveToPlayerSystem))]
     public partial class ORCAMoveSystem : SystemBase
     {
+        private NativeQueue<float3> _nativeQueue = new(Allocator.Persistent);
         private ORCABundle<Agent> _bundle;
         private Dictionary<Entity, Agent> _entity2AgentMap;
         private Agent _playerAgent;
@@ -20,7 +22,7 @@ namespace MusouEcs
         protected override void OnCreate()
         {
             base.OnCreate();
-            
+
             RequireForUpdate<OrcaDynamicData>();
 
             _bundle = new ORCABundle<Agent>();
@@ -32,9 +34,9 @@ namespace MusouEcs
         protected override void OnUpdate()
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
-            
+
             var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
-            var playerTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
+            var playerTransform = SystemAPI.GetComponentRW<LocalTransform>(playerEntity);
             if (_playerAgent == null)
             {
                 _playerAgent = _bundle.agents.Add(float3.zero);
@@ -47,8 +49,8 @@ namespace MusouEcs
                 _playerAgent.layerIgnore = ORCALayer.L0;
             }
 
-            var de = playerTransform.Position - _playerLastPos;
-            _playerLastPos = playerTransform.Position;
+            var de = playerTransform.ValueRW.Position - _playerLastPos;
+            _playerLastPos = playerTransform.ValueRW.Position;
             _playerAgent.prefVelocity = math.normalizesafe(de);
             _playerAgent.maxSpeed = math.length(de) / deltaTime;
 
@@ -77,16 +79,26 @@ namespace MusouEcs
 
             if (_bundle.orca.TryComplete())
             {
+                var index = 0;
                 foreach (var (transform, orcaDynamicData, entity) in
                          SystemAPI.Query<RefRW<LocalTransform>, RefRO<OrcaDynamicData>>().WithEntityAccess())
                 {
                     if (_entity2AgentMap.TryGetValue(entity, out var value))
                     {
                         transform.ValueRW.Position = value.pos;
+                        _nativeQueue.Enqueue(value.pos);
+                        SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity[index] = entity;
+                        index++;
                     }
                 }
 
                 _bundle.orca.Schedule(deltaTime);
+                
+                var nativeArray = _nativeQueue.ToArray(Allocator.Temp);
+                _nativeQueue.Clear();
+                
+                MusouMain.Inst.Gsb.initGrid(nativeArray);
+                nativeArray.Dispose();
             }
             else
             {
@@ -95,12 +107,14 @@ namespace MusouEcs
 
             //遍历所有 OrcaCleanUpData 去除销毁的entity
             foreach (var (cleanUpData, entity) in
-                     SystemAPI.Query<RefRO<OrcaCleanUpData>>().WithNone<OrcaDynamicData>().WithEntityAccess())
+                     SystemAPI.Query<RefRO<OrcaCleanUpData>>().WithEntityAccess())
             {
                 if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
                 _bundle.agents.Remove(value);
                 _entity2AgentMap.Remove(entity);
             }
+            var query = GetEntityQuery(typeof(OrcaCleanUpData));
+            EntityManager.RemoveComponent<OrcaCleanUpData>(query);
         }
     }
 }

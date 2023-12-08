@@ -5,7 +5,9 @@ namespace MusouEcs
 {
     public class PlayerGeneratorAuthoring : MonoBehaviour
     {
-        public GameObject playerPrefab = null;
+        public GameObject playerPrefab;
+
+        public GameObject bulletPrefab; //todo 临时加在这
 
         private class PlayerGeneratorAuthoringBaker : Baker<PlayerGeneratorAuthoring>
         {
@@ -15,6 +17,7 @@ namespace MusouEcs
                 AddComponent(entity, new PlayerGeneratorData
                 {
                     PlayerProtoType = GetEntity(authoring.playerPrefab, TransformUsageFlags.Dynamic),
+                    BulletProtoType = GetEntity(authoring.bulletPrefab, TransformUsageFlags.Dynamic),
                 });
             }
         }

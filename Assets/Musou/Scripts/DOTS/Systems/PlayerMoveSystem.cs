@@ -8,7 +8,7 @@ using UnityEngine;
 namespace MusouEcs
 {
     [UpdateInGroup(typeof(MusouUpdateGroup))]
-    [CreateAfter(typeof(PlayerGenerateSystem))]
+    [UpdateAfter(typeof(PlayerGenerateSystem))]
     public partial struct PlayerMoveSystem : ISystem
     {
         [BurstCompile]

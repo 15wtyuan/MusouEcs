@@ -60,7 +60,7 @@ namespace MusouEcs
                     Scale = scale,
                 });
 
-                // // 怪物渲染相关
+                // // 怪物渲染相关, 这里的版本是使用shader graph 显示，但是没解决渲染排序问题
                 // AddComponent(entity, new MusouRenderAniData());
                 //
                 // AddComponent(entity, new MusouRenderFrameData
@@ -104,8 +104,6 @@ namespace MusouEcs
                     MaxNeighbors = authoring.maxNeighbors,
                     NeighborDist = authoring.neighborDist,
                 });
-
-                AddComponent(entity, new OrcaCleanUpData());
             }
         }
     }

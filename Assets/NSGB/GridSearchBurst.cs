@@ -11,7 +11,6 @@ using UnityEngine;
 
 namespace BurstGridSearch
 {
-
     public class GridSearchBurst
     {
         const int MAXGRIDSIZE = 256;
@@ -28,6 +27,9 @@ namespace BurstGridSearch
         float gridReso = -1.0f;
         int targetGridSize;
 
+        private bool _isInit = false;
+        public bool IsInit => _isInit;
+
         public GridSearchBurst(float resolution, int targetGrid = 32)
         {
             if (resolution <= 0.0f && targetGrid > 0)
@@ -39,12 +41,12 @@ namespace BurstGridSearch
             {
                 throw new System.Exception("Wrong target grid size. Choose a resolution > 0 or a target grid > 0");
             }
+
             gridReso = resolution;
         }
 
         public void initGrid(Vector3[] pos)
         {
-
             positions = new NativeArray<Vector3>(pos, Allocator.Persistent).Reinterpret<float3>();
 
             _initGrid();
@@ -52,7 +54,6 @@ namespace BurstGridSearch
 
         public void initGrid(NativeArray<float3> pos)
         {
-
             positions = new NativeArray<float3>(pos.Length, Allocator.Persistent);
             pos.CopyTo(positions);
 
@@ -65,6 +66,7 @@ namespace BurstGridSearch
             {
                 throw new System.Exception("Empty position buffer");
             }
+
             getMinMaxCoords(positions, ref minValue, ref maxValue);
 
             float3 sidelen = maxValue - minValue;
@@ -108,7 +110,6 @@ namespace BurstGridSearch
             {
                 hashIndex = hashIndex,
                 entries = entries
-
             };
             var populateJobHandle = populateJob.Schedule(positions.Length, 128);
             populateJobHandle.Complete();
@@ -155,6 +156,8 @@ namespace BurstGridSearch
 
             var sortCellJobHandle = sortCellJob.Schedule();
             sortCellJobHandle.Complete();
+
+            _isInit = true;
         }
 
 
@@ -172,7 +175,8 @@ namespace BurstGridSearch
 
         public void updatePositions(Vector3[] newPos)
         {
-            NativeArray<float3> tempPositions = new NativeArray<Vector3>(newPos, Allocator.TempJob).Reinterpret<float3>();
+            NativeArray<float3> tempPositions =
+                new NativeArray<Vector3>(newPos, Allocator.TempJob).Reinterpret<float3>();
             updatePositions(tempPositions);
             tempPositions.Dispose();
         }
@@ -207,6 +211,7 @@ namespace BurstGridSearch
                 cellStartEnd.Dispose();
                 cellStartEnd = new NativeArray<int2>(NCells, Allocator.Persistent);
             }
+
             var assignHashJob = new AssignHashJob()
             {
                 oriGrid = minValue,
@@ -226,7 +231,6 @@ namespace BurstGridSearch
             {
                 hashIndex = hashIndex,
                 entries = entries
-
             };
             var populateJobHandle = populateJob.Schedule(positions.Length, 128);
             populateJobHandle.Complete();
@@ -246,7 +250,6 @@ namespace BurstGridSearch
             {
                 hashIndex = hashIndex,
                 entries = entries
-
             };
 
             var depopulateJobHandle = depopulateJob.Schedule(positions.Length, 128);
@@ -277,8 +280,8 @@ namespace BurstGridSearch
 
         public int[] searchClosestPoint(Vector3[] queryPoints, bool checkSelf = false, float epsilon = 0.001f)
         {
-
-            NativeArray<float3> qPoints = new NativeArray<Vector3>(queryPoints, Allocator.TempJob).Reinterpret<float3>();
+            NativeArray<float3> qPoints =
+                new NativeArray<Vector3>(queryPoints, Allocator.TempJob).Reinterpret<float3>();
             NativeArray<int> results = new NativeArray<int>(queryPoints.Length, Allocator.TempJob);
 
             var closestPointJob = new ClosestPointJob()
@@ -307,9 +310,9 @@ namespace BurstGridSearch
             return res;
         }
 
-        public NativeArray<int> searchClosestPoint(NativeArray<float3> qPoints, bool checkSelf = false, float epsilon = 0.001f)
+        public NativeArray<int> searchClosestPoint(NativeArray<float3> qPoints, bool checkSelf = false,
+            float epsilon = 0.001f)
         {
-
             NativeArray<int> results = new NativeArray<int>(qPoints.Length, Allocator.TempJob);
 
             var closestPointJob = new ClosestPointJob()
@@ -334,9 +337,10 @@ namespace BurstGridSearch
 
         public int[] searchWithin(Vector3[] queryPoints, float rad, int maxNeighborPerQuery)
         {
-
-            NativeArray<float3> qPoints = new NativeArray<Vector3>(queryPoints, Allocator.TempJob).Reinterpret<float3>();
-            NativeArray<int> results = new NativeArray<int>(queryPoints.Length * maxNeighborPerQuery, Allocator.TempJob);
+            NativeArray<float3> qPoints =
+                new NativeArray<Vector3>(queryPoints, Allocator.TempJob).Reinterpret<float3>();
+            NativeArray<int> results =
+                new NativeArray<int>(queryPoints.Length * maxNeighborPerQuery, Allocator.TempJob);
             int cellsToLoop = (int)math.ceil(rad / gridReso);
 
             var withinJob = new FindWithinJob()
@@ -368,8 +372,8 @@ namespace BurstGridSearch
 
         public NativeArray<int> searchWithin(NativeArray<float3> queryPoints, float rad, int maxNeighborPerQuery)
         {
-
-            NativeArray<int> results = new NativeArray<int>(queryPoints.Length * maxNeighborPerQuery, Allocator.TempJob);
+            NativeArray<int> results =
+                new NativeArray<int>(queryPoints.Length * maxNeighborPerQuery, Allocator.TempJob);
 
             int cellsToLoop = (int)math.ceil(rad / gridReso);
 
@@ -432,7 +436,6 @@ namespace BurstGridSearch
                 }
                 else
                 {
-
                     x = math.min(minVal[0].x, pos[i].x);
                     y = math.min(minVal[0].y, pos[i].y);
                     z = math.min(minVal[0].z, pos[i].z);
@@ -490,7 +493,6 @@ namespace BurstGridSearch
         [BurstCompile(CompileSynchronously = true)]
         struct SortCellJob : IJob
         {
-
             [ReadOnly] public NativeArray<float3> pos;
             [ReadOnly] public NativeArray<int2> hashIndex;
 
@@ -513,7 +515,6 @@ namespace BurstGridSearch
 
                     if (index == 0 || hash != hashm1)
                     {
-
                         newV.x = index;
                         newV.y = cellStartEnd[hash].y;
 
@@ -580,7 +581,6 @@ namespace BurstGridSearch
                 {
                     for (int id = idStartf; id < idStopf; id++)
                     {
-
                         float3 posA = sortedPos[id];
                         float d = math.distancesq(p, posA); //Squared distance
 
@@ -625,7 +625,6 @@ namespace BurstGridSearch
                                     curGridId.z = cell.z + z;
                                     if (curGridId.z >= 0 && curGridId.z < gridDim.z)
                                     {
-
                                         int neighcellhash = flatten3DTo1D(curGridId, gridDim);
                                         int idStart = cellStartEnd[neighcellhash].x;
                                         int idStop = cellStartEnd[neighcellhash].y;
@@ -634,7 +633,6 @@ namespace BurstGridSearch
                                         {
                                             for (int id = idStart; id < idStop; id++)
                                             {
-
                                                 float3 posA = sortedPos[id];
                                                 float d = math.distancesq(p, posA); //Squared distance
 
@@ -668,11 +666,11 @@ namespace BurstGridSearch
                     results[index] = hashIndex[minRes].y;
                 }
                 else
-                {//Neighbor cells do not contain anything => compute all distances
-                 //Compute all the distances ! = SLOW
+                {
+                    //Neighbor cells do not contain anything => compute all distances
+                    //Compute all the distances ! = SLOW
                     for (int id = 0; id < sortedPos.Length; id++)
                     {
-
                         float3 posA = sortedPos[id];
                         float d = math.distancesq(p, posA); //Squared distance
 
@@ -693,11 +691,11 @@ namespace BurstGridSearch
                             }
                         }
                     }
+
                     results[index] = hashIndex[minRes].y;
                 }
             }
         }
-
 
 
         [BurstCompile(CompileSynchronously = true)]
@@ -714,8 +712,7 @@ namespace BurstGridSearch
             [ReadOnly] public NativeArray<float3> sortedPos;
             [ReadOnly] public NativeArray<int2> hashIndex;
 
-            [NativeDisableParallelForRestriction]
-            public NativeArray<int> results;
+            [NativeDisableParallelForRestriction] public NativeArray<int> results;
 
             void IJobParallelFor.Execute(int index)
             {
@@ -740,7 +737,6 @@ namespace BurstGridSearch
                 {
                     for (int id = idStartf; id < idStopf; id++)
                     {
-
                         float3 posA = sortedPos[id];
                         float d = math.distancesq(p, posA); //Squared distance
                         if (d <= squaredRadius)
@@ -772,7 +768,7 @@ namespace BurstGridSearch
                                     if (curGridId.z >= 0 && curGridId.z < gridDim.z)
                                     {
                                         if (x == 0 && y == 0 && z == 0)
-                                            continue;//Already done that
+                                            continue; //Already done that
 
 
                                         int neighcellhash = flatten3DTo1D(curGridId, gridDim);
@@ -783,7 +779,6 @@ namespace BurstGridSearch
                                         {
                                             for (int id = idStart; id < idStop; id++)
                                             {
-
                                                 float3 posA = sortedPos[id];
                                                 float d = math.distancesq(p, posA); //Squared distance
 
@@ -812,8 +807,7 @@ namespace BurstGridSearch
         [BurstCompile(CompileSynchronously = true)]
         private struct PopulateEntryJob : IJobParallelFor
         {
-            [NativeDisableParallelForRestriction]
-            public NativeArray<SortEntry> entries;
+            [NativeDisableParallelForRestriction] public NativeArray<SortEntry> entries;
             [ReadOnly] public NativeArray<int2> hashIndex;
 
             public void Execute(int index)
@@ -846,6 +840,7 @@ namespace BurstGridSearch
         {
             return (int3)((pos3D - originGrid) * invdx);
         }
+
         static int flatten3DTo1D(int3 id3d, int3 gridDim)
         {
             return (id3d.z * gridDim.x * gridDim.y) + (id3d.y * gridDim.x) + id3d.x;
@@ -885,7 +880,7 @@ namespace BurstGridSearch
         public const int QUICKSORT_THRESHOLD_LENGTH = 400;
 
         public static JobHandle Sort<T>(NativeArray<T> array, JobHandle parentHandle)
-        where T : unmanaged, IComparable<T>
+            where T : unmanaged, IComparable<T>
         {
             return MergeSort(array, new SortRange(0, array.Length - 1), parentHandle);
         }
@@ -896,7 +891,8 @@ namespace BurstGridSearch
         // }
 
 
-        private static JobHandle MergeSort<T>(NativeArray<T> array, SortRange range, JobHandle parentHandle) where T : unmanaged, IComparable<T>
+        private static JobHandle MergeSort<T>(NativeArray<T> array, SortRange range, JobHandle parentHandle)
+            where T : unmanaged, IComparable<T>
         {
             if (range.Length <= QUICKSORT_THRESHOLD_LENGTH)
             {
@@ -940,10 +936,7 @@ namespace BurstGridSearch
 
             public int Length
             {
-                get
-                {
-                    return this.right - this.left + 1;
-                }
+                get { return this.right - this.left + 1; }
             }
 
             public int Middle
@@ -956,10 +949,7 @@ namespace BurstGridSearch
 
             public int Max
             {
-                get
-                {
-                    return this.right;
-                }
+                get { return this.right; }
             }
         }
 

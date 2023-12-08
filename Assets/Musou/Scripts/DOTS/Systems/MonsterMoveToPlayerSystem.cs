@@ -1,6 +1,8 @@
 ﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Collections;
+using Unity.Transforms;
 
 namespace MusouEcs
 {
@@ -27,6 +29,31 @@ namespace MusouEcs
         [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
+        }
+    }
+    
+    public readonly partial struct MonsterMoveToPlayerAspect : IAspect
+    {
+        public readonly RefRO<LocalTransform> LocalTransform;
+        public readonly RefRO<MonsterData> MonsterData;
+        public readonly RefRW<OrcaDynamicData> DirectionData;
+
+        public void Move(float3 targetPos, float deltaTime)
+        {
+            var dir = (targetPos - LocalTransform.ValueRO.Position);
+            dir = math.normalizesafe(dir);
+            DirectionData.ValueRW.Direction = dir;
+        }
+    }
+    
+    public partial struct MonsterMoveToPlayerJob : IJobEntity
+    {
+        [ReadOnly] public float ElapsedTime;
+        [ReadOnly] public float3 Target;
+
+        private void Execute(MonsterMoveToPlayerAspect monsterMoveToPlayerAspect)
+        {
+            monsterMoveToPlayerAspect.Move(Target, ElapsedTime);
         }
     }
 }
