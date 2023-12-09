@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using Nebukam.ORCA;
+using Unity.Entities;
 using Unity.Mathematics;
 
 namespace MusouEcs
@@ -19,6 +20,11 @@ namespace MusouEcs
         public float RadiusObst;
         public int MaxNeighbors;
         public float NeighborDist;
+    }
+
+    public class OrcaAgentData : IComponentData
+    {
+        public Agent Agent;
     }
 
     public struct OrcaCleanUpData : ICleanupComponentData

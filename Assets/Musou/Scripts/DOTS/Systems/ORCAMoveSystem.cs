@@ -80,7 +80,7 @@ namespace MusouEcs
             if (_bundle.orca.TryComplete())
             {
                 var index = 0;
-                foreach (var (transform, orcaDynamicData, entity) in
+                foreach (var (transform, _, entity) in
                          SystemAPI.Query<RefRW<LocalTransform>, RefRO<OrcaDynamicData>>().WithEntityAccess())
                 {
                     if (_entity2AgentMap.TryGetValue(entity, out var value))
@@ -97,7 +97,7 @@ namespace MusouEcs
                 var nativeArray = _nativeQueue.ToArray(Allocator.Temp);
                 _nativeQueue.Clear();
                 
-                MusouMain.Inst.Gsb.initGrid(nativeArray);
+                MusouMain.Inst.Gsb.InitGrid(nativeArray);
                 nativeArray.Dispose();
             }
             else
@@ -106,7 +106,7 @@ namespace MusouEcs
             }
 
             //遍历所有 OrcaCleanUpData 去除销毁的entity
-            foreach (var (cleanUpData, entity) in
+            foreach (var (_, entity) in
                      SystemAPI.Query<RefRO<OrcaCleanUpData>>().WithEntityAccess())
             {
                 if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;

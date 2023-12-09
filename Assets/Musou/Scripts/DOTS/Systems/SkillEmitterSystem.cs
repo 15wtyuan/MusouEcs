@@ -82,7 +82,7 @@ namespace MusouEcs
                 {
                     var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
                     _playerPos[0] = playerPos;
-                    var monsterIndex = MusouMain.Inst.Gsb.searchClosestPoint(_playerPos);
+                    var monsterIndex = MusouMain.Inst.Gsb.SearchClosestPoint(_playerPos);
                     if (monsterIndex[0] >= 0)
                     {
                         var monsterEntity =

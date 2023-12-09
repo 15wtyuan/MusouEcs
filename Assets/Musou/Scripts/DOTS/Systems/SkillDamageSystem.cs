@@ -28,7 +28,7 @@ namespace MusouEcs
                 {
                     var skillDamageData = EntityManager.GetSharedComponent<SkillDamageData>(entity);
                     _queryPoints[0] = transform.ValueRO.Position;
-                    var results = MusouMain.Inst.Gsb.searchWithin(_queryPoints, skillDamageData.DamageRadius, 100);
+                    var results = MusouMain.Inst.Gsb.SearchWithin(_queryPoints, skillDamageData.DamageRadius, 100);
 
                     //下面可改成job
                     for (var i = 0; i < results.Length; i++)

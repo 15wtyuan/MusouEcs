@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -10,35 +11,17 @@ using UnityEngine;
 
 namespace MusouEcs
 {
-    internal struct RenderData
+    [BurstCompile]
+    internal struct RenderData : IComparable<RenderData>
     {
         public float3 Position;
         public Matrix4x4 Matrix;
         public Vector4 AtlasData;
-    }
 
-    internal struct PointDataComparer : IComparer<RenderData>
-    {
-        public int Compare(RenderData a, RenderData b)
+        public int CompareTo(RenderData other)
         {
-            var c = b.Position.y - a.Position.y;
-            if (c == 0)
-            {
-                return 0;
-            }
-
-            return c > 0 ? 1 : -1;
-        }
-    }
-
-    [BurstCompile]
-    internal struct SortByPositionJob : IJob
-    {
-        public NativeArray<RenderData> SortArray;
-
-        public void Execute()
-        {
-            SortArray.Sort(new PointDataComparer());
+            // 按y轴排序
+            return other.Position.y.CompareTo(Position.y);
         }
     }
 
@@ -69,6 +52,9 @@ namespace MusouEcs
     [UpdateAfter(typeof(MusouSpritePreRenderSystem))]
     public partial class MusouSpriteRenderSystem : SystemBase
     {
+        private readonly int rectPropertyId = Shader.PropertyToID("_Rect");
+        private const int SliceCount = 1023; // 一次渲染最大为1023
+
         private NativeQueue<RenderData> _nativeQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
 
@@ -92,18 +78,18 @@ namespace MusouEcs
             var xRight = cameraPosition.x + horizonSize;
 
             foreach (var (transform, spriteDate) in
-                     SystemAPI.Query<RefRW<LocalTransform>, RefRO<MusouSpriteData>>())
+                     SystemAPI.Query<RefRO<LocalTransform>, RefRO<MusouSpriteData>>())
             {
-                var posY = transform.ValueRW.Position.y;
-                var posX = transform.ValueRW.Position.x;
+                var posY = transform.ValueRO.Position.y;
+                var posX = transform.ValueRO.Position.x;
 
                 if (posY < yBottom || posY > yTop) continue;
                 if (posX > xRight || posX < xLeft) continue;
 
                 var renderData = new RenderData
                 {
+                    Position = transform.ValueRO.Position,
                     Matrix = spriteDate.ValueRO.Matrix4X4,
-                    Position = transform.ValueRW.Position,
                     AtlasData = spriteDate.ValueRO.AtlasData
                 };
                 _nativeQueue.Enqueue(renderData);
@@ -112,42 +98,35 @@ namespace MusouEcs
             var nativeArray = _nativeQueue.ToArray(Allocator.TempJob);
             _nativeQueue.Clear();
 
-            var sortJob = new SortByPositionJob
-            {
-                SortArray = nativeArray
-            };
-            Dependency = sortJob.Schedule();
+            JobHandle chainHandle = new JobHandle();
+            // Call sort
+            chainHandle = MultithreadedSort.Sort(nativeArray, chainHandle);
+            Dependency = chainHandle;
             CompleteDependency();
 
             var visibleEntityTotal = nativeArray.Length;
             var nativeMatrixArray =
                 new NativeArray<Matrix4x4>(visibleEntityTotal, Allocator.TempJob);
-            var nativeAtlasData = new NativeArray<Vector4>(visibleEntityTotal, Allocator.TempJob);
-
+            var nativeAtlasDataArray = new NativeArray<Vector4>(visibleEntityTotal, Allocator.TempJob);
             var combineArraysParallelJob = new CombineArraysParallelJob
             {
                 StartIndex = 0,
                 NativeArray = nativeArray,
                 Matrix4X4Array = nativeMatrixArray,
-                AtlasData = nativeAtlasData
+                AtlasData = nativeAtlasDataArray
             };
             Dependency = combineArraysParallelJob.Schedule(nativeArray.Length, 10);
             CompleteDependency();
             nativeArray.Dispose();
 
-            var rectPropertyId = Shader.PropertyToID("_Rect");
-            const int sliceCount = 1023; // 一次渲染最大为1023
-            var matrixInstancedArray = new Matrix4x4[sliceCount];
-            var uvInstancedArray = new Vector4[sliceCount];
-
-            for (var i = 0; i < visibleEntityTotal; i += sliceCount)
+            var matrixInstancedArray = new Matrix4x4[SliceCount];
+            var uvInstancedArray = new Vector4[SliceCount];
+            for (var i = 0; i < visibleEntityTotal; i += SliceCount)
             {
-                var sliceSize = math.min(visibleEntityTotal - i, sliceCount);
-
+                var sliceSize = math.min(visibleEntityTotal - i, SliceCount);
                 NativeArray<Matrix4x4>.Copy(nativeMatrixArray, i, matrixInstancedArray, 0, sliceSize);
-                NativeArray<Vector4>.Copy(nativeAtlasData, i, uvInstancedArray, 0, sliceSize);
+                NativeArray<Vector4>.Copy(nativeAtlasDataArray, i, uvInstancedArray, 0, sliceSize);
                 _materialPropertyBlock.SetVectorArray(rectPropertyId, uvInstancedArray);
-
                 Graphics.DrawMeshInstanced(
                     GameHandler.Instance.quadMesh,
                     0,
@@ -157,9 +136,8 @@ namespace MusouEcs
                     _materialPropertyBlock
                 );
             }
-
             nativeMatrixArray.Dispose();
-            nativeAtlasData.Dispose();
+            nativeAtlasDataArray.Dispose();
         }
     }
 }
