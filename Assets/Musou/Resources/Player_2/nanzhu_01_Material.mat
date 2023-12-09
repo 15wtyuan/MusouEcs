@@ -11,7 +11,8 @@ Material:
   m_Shader: {fileID: 4800000, guid: 522f03282fd79be47b306e2ef4b593fd, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _STRAIGHT_ALPHA_INPUT
   m_InvalidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _USE8NEIGHBOURHOOD_ON
@@ -44,7 +45,7 @@ Material:
     - _StencilReadMask: 255
     - _StencilRef: 1
     - _StencilWriteMask: 255
-    - _StraightAlphaInput: 0
+    - _StraightAlphaInput: 1
     - _ThresholdEnd: 0.25
     - _Use8Neighbourhood: 1
     m_Colors:

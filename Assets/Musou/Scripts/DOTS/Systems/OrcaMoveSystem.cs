@@ -11,7 +11,7 @@ namespace MusouEcs
     [UpdateInGroup(typeof(MusouUpdateGroup))]
     [RequireMatchingQueriesForUpdate]
     [UpdateAfter(typeof(MonsterMoveToPlayerSystem))]
-    public partial class ORCAMoveSystem : SystemBase
+    public partial class OrcaMoveSystem : SystemBase
     {
         private NativeQueue<float3> _nativeQueue = new(Allocator.Persistent);
         private ORCABundle<Agent> _bundle;

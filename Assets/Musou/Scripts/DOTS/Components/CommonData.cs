@@ -22,11 +22,6 @@ namespace MusouEcs
         public float NeighborDist;
     }
 
-    public class OrcaAgentData : IComponentData
-    {
-        public Agent Agent;
-    }
-
     public struct OrcaCleanUpData : ICleanupComponentData
     {
     }

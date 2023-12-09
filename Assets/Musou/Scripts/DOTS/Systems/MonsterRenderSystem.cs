@@ -10,7 +10,7 @@ namespace MusouEcs
     [BurstCompile]
     [RequireMatchingQueriesForUpdate]
     [UpdateInGroup(typeof(MusouUpdateGroup))]
-    [UpdateAfter(typeof(ORCAMoveSystem))]
+    [UpdateAfter(typeof(OrcaMoveSystem))]
     public partial struct MonsterRenderSystem : ISystem
     {
         [BurstCompile]
