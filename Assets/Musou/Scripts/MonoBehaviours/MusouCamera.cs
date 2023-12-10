@@ -5,17 +5,17 @@ namespace MusouEcs
     public class MusouCameraContext
     {
         public Transform Target;
-        public MusouMapMgr MapMgr;
+        public MusouGround Ground;
     }
 
     public class MusouCamera : MonoBehaviour
     {
-        public static Camera Main = null;
-        public static MusouCamera Inst = null;
+        public static Camera Main;
+        public static MusouCamera Inst;
+        
+        public MusouGround ground;
 
         public float smoothTime = 0.3f;
-
-        private MusouCameraContext _context;
         private Vector2 _velocity = Vector2.zero;
 
         private void Awake()
@@ -23,6 +23,7 @@ namespace MusouEcs
             Main = GetComponent<Camera>();
             Inst = this;
             DontDestroyOnLoad(Main);
+            
             // Main.transparencySortMode = TransparencySortMode.CustomAxis;
             // Main.transparencySortAxis = new Vector3(0, 1, -1);
         }
@@ -35,23 +36,10 @@ namespace MusouEcs
 
         private void LateUpdate()
         {
-            if (_context == null) return;
-
-            var cur = Vector2.SmoothDamp(transform.position, _context.Target.position, ref _velocity, smoothTime);
+            var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
+            var cur = Vector2.SmoothDamp(transform.position, playerPos, ref _velocity, smoothTime);
             transform.position = new Vector3(cur.x, cur.y, -10);
-            _context.MapMgr.ViewTo(new Vector3(cur.x, cur.y, 0));
-        }
-
-        public void SetContext(MusouCameraContext context)
-        {
-            _context = context;
-            transform.position = context.Target.TransformPoint(new Vector3(0, 0, -10));
-            _velocity = Vector2.zero;
-        }
-
-        public void RemoveContext()
-        {
-            _context = null;
+            ground.ViewTo(new Vector3(cur.x, cur.y, 0));
         }
     }
 }

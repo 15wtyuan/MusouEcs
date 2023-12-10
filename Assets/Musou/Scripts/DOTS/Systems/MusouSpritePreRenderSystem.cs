@@ -82,17 +82,17 @@ namespace MusouEcs
                 SpriteAniData.ValueRW.CurFrame = SpriteAniSharedData.BeginFarme;
             }
 
-            var curRow = SpriteAniData.ValueRW.CurFrame / (int)SpriteData.ValueRO.AtlasData.x + 1;
-            var curCol = SpriteAniData.ValueRW.CurFrame - ((curRow - 1) * (int)SpriteData.ValueRO.AtlasData.x);
+            var curRow = SpriteAniData.ValueRW.CurFrame / (int)SpriteData.ValueRO.AtlasRect.x + 1;
+            var curCol = SpriteAniData.ValueRW.CurFrame - ((curRow - 1) * (int)SpriteData.ValueRO.AtlasRect.x);
             if (curCol == 0)
             {
                 curRow--;
-                curCol = (int)SpriteData.ValueRO.AtlasData.x;
+                curCol = (int)SpriteData.ValueRO.AtlasRect.x;
             }
 
-            curRow = (int)SpriteData.ValueRO.AtlasData.y - curRow + 1;
-            SpriteData.ValueRW.AtlasData = new Vector4((int)SpriteData.ValueRO.AtlasData.x,
-                (int)SpriteData.ValueRO.AtlasData.y, curRow, curCol);
+            curRow = (int)SpriteData.ValueRO.AtlasRect.y - curRow + 1;
+            SpriteData.ValueRW.AtlasRect = new Vector4((int)SpriteData.ValueRO.AtlasRect.x,
+                (int)SpriteData.ValueRO.AtlasRect.y, curRow, curCol);
 
             SpriteAniData.ValueRW.CurFrame++;
         }

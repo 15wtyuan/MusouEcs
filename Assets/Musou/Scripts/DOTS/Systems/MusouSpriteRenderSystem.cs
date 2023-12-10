@@ -11,12 +11,18 @@ using UnityEngine;
 
 namespace MusouEcs
 {
+    internal struct AtlasData
+    {
+        public int TexIndex;
+        public Vector4 AtlasRect;
+    }
+
     [BurstCompile]
     internal struct RenderData : IComparable<RenderData>
     {
         public float3 Position;
         public Matrix4x4 Matrix;
-        public Vector4 AtlasData;
+        public AtlasData AtlasData;
 
         public int CompareTo(RenderData other)
         {
@@ -34,7 +40,10 @@ namespace MusouEcs
         public NativeArray<Matrix4x4> Matrix4X4Array;
 
         [NativeDisableContainerSafetyRestriction]
-        public NativeArray<Vector4> AtlasData;
+        public NativeArray<float> TexIndexArray;
+
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<Vector4> AtlasRectArray;
 
         public int StartIndex;
 
@@ -42,7 +51,8 @@ namespace MusouEcs
         {
             var renderData = NativeArray[index];
             Matrix4X4Array[StartIndex + index] = renderData.Matrix;
-            AtlasData[StartIndex + index] = renderData.AtlasData;
+            TexIndexArray[StartIndex + index] = renderData.AtlasData.TexIndex;
+            AtlasRectArray[StartIndex + index] = renderData.AtlasData.AtlasRect;
         }
     }
 
@@ -53,6 +63,7 @@ namespace MusouEcs
     public partial class MusouSpriteRenderSystem : SystemBase
     {
         private readonly int rectPropertyId = Shader.PropertyToID("_Rect");
+        private readonly int texIndexPropertyId = Shader.PropertyToID("_TexIndex");
         private const int SliceCount = 1023; // 一次渲染最大为1023
 
         private NativeQueue<RenderData> _nativeQueue = new(Allocator.Persistent);
@@ -90,7 +101,11 @@ namespace MusouEcs
                 {
                     Position = transform.ValueRO.Position,
                     Matrix = spriteDate.ValueRO.Matrix4X4,
-                    AtlasData = spriteDate.ValueRO.AtlasData
+                    AtlasData = new AtlasData
+                    {
+                        TexIndex = spriteDate.ValueRO.TexIndex,
+                        AtlasRect = spriteDate.ValueRO.AtlasRect
+                    }
                 };
                 _nativeQueue.Enqueue(renderData);
             }
@@ -105,15 +120,19 @@ namespace MusouEcs
             CompleteDependency();
 
             var visibleEntityTotal = nativeArray.Length;
+
             var nativeMatrixArray =
                 new NativeArray<Matrix4x4>(visibleEntityTotal, Allocator.TempJob);
-            var nativeAtlasDataArray = new NativeArray<Vector4>(visibleEntityTotal, Allocator.TempJob);
+            var nativeAtlasRectArray = new NativeArray<Vector4>(visibleEntityTotal, Allocator.TempJob);
+            var nativeTexIndexArray = new NativeArray<float>(visibleEntityTotal, Allocator.TempJob);
+
             var combineArraysParallelJob = new CombineArraysParallelJob
             {
                 StartIndex = 0,
                 NativeArray = nativeArray,
                 Matrix4X4Array = nativeMatrixArray,
-                AtlasData = nativeAtlasDataArray
+                TexIndexArray = nativeTexIndexArray,
+                AtlasRectArray = nativeAtlasRectArray
             };
             Dependency = combineArraysParallelJob.Schedule(nativeArray.Length, 10);
             CompleteDependency();
@@ -121,12 +140,19 @@ namespace MusouEcs
 
             var matrixInstancedArray = new Matrix4x4[SliceCount];
             var uvInstancedArray = new Vector4[SliceCount];
+            var texIndexInstancedArray = new float[SliceCount];
+
             for (var i = 0; i < visibleEntityTotal; i += SliceCount)
             {
                 var sliceSize = math.min(visibleEntityTotal - i, SliceCount);
+
                 NativeArray<Matrix4x4>.Copy(nativeMatrixArray, i, matrixInstancedArray, 0, sliceSize);
-                NativeArray<Vector4>.Copy(nativeAtlasDataArray, i, uvInstancedArray, 0, sliceSize);
+                NativeArray<Vector4>.Copy(nativeAtlasRectArray, i, uvInstancedArray, 0, sliceSize);
+                NativeArray<float>.Copy(nativeTexIndexArray, i, texIndexInstancedArray, 0, sliceSize);
+
                 _materialPropertyBlock.SetVectorArray(rectPropertyId, uvInstancedArray);
+                _materialPropertyBlock.SetFloatArray(texIndexPropertyId, texIndexInstancedArray);
+
                 Graphics.DrawMeshInstanced(
                     GameHandler.Instance.quadMesh,
                     0,
@@ -136,8 +162,9 @@ namespace MusouEcs
                     _materialPropertyBlock
                 );
             }
+
             nativeMatrixArray.Dispose();
-            nativeAtlasDataArray.Dispose();
+            nativeAtlasRectArray.Dispose();
         }
     }
 }

@@ -13,7 +13,6 @@ namespace MusouEcs
 
         public Vector3 PlayerMoveDir;
         public Vector2 PlayerPosition;
-        public int PlayerFace;
     }
 
     public struct SharedStaticMonsterData

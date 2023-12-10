@@ -69,7 +69,9 @@ namespace MusouEcs
                 case EmitterDirType.PlayerFace:
                 {
                     //根据玩家方向
-                    var face = SharedStaticPlayerData.SharedValue.Data.PlayerFace;
+                    var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
+                    var playerRenderFaceData = EntityManager.GetComponentData<MusouRenderFaceData>(playerEntity);
+                    var face = playerRenderFaceData.Face;
                     createDir = face > 0 ? Vector2.right : Vector2.left;
                     break;
                 }

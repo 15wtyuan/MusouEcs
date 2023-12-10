@@ -2,19 +2,20 @@
 {
     Properties
     {
-        _MainTex ("Base (RGB), Alpha (A)", 2D) = "white" { }
+        _MainTex ("Main Texture Array", 2DArray) = "white" { }
+        _TexIndex ("Tex Index", float) = 0
         _Color("Color", color) = (1, 1, 1, 1)
         _Rect("Rect", vector) = (1, 1, 1, 1)
 
+        //闪白
         _BlankColor("Blank Color", color) = (1, 1, 1, 1)
         _BlankOpacity ("Blank Opacity", float) = 0.5
 
+        //描边
         _OutlineWidth ("Outline Width", float) = 0
         _OutlineColor ("Outline Color", Color) = (1.0, 00, 00, 1.0)
         _OutlineOutValue ("Outline Out Alpha Value", Range(0, 1)) = 1
         _OutLineInValue ("OutLine In Alpha Value", Range(0, 1)) = 0
-
-        _ModelAlpha ("Model Alpha", float) = 1
     }
     
     SubShader
@@ -39,14 +40,14 @@
 
             #include "UnityCG.cginc"
 
-            sampler2D _MainTex;
+            UNITY_DECLARE_TEX2DARRAY(_MainTex);
             fixed4 _Color;
 
             UNITY_INSTANCING_BUFFER_START(Props)
+            UNITY_DEFINE_INSTANCED_PROP(float, _TexIndex)
             UNITY_DEFINE_INSTANCED_PROP(float4, _Rect)
             UNITY_DEFINE_INSTANCED_PROP(float, _Blank)
             UNITY_DEFINE_INSTANCED_PROP(float, _BlankOpacity)
-            UNITY_DEFINE_INSTANCED_PROP(float, _ModelAlpha)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             fixed4 _BlankColor;
@@ -113,18 +114,14 @@
             fixed4 frag(v2f i): SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(i); //   necessary only if any instanced properties are going to be accessed in the fragment Shader.
-
                 float2 uv = i.uv;
+                float texIndex = UNITY_ACCESS_INSTANCED_PROP(Props, _TexIndex);
+                fixed4 col = UNITY_SAMPLE_TEX2DARRAY(_MainTex, float3(uv, texIndex)) * _Color;
                 
-                fixed4 col = tex2D(_MainTex, uv) * _Color;
-                
-                float transparent = tex2D(_MainTex, i.left).a + tex2D(_MainTex, i.right).a + tex2D(_MainTex, i.up).a + tex2D(_MainTex, i.down).a;
+                float transparent = UNITY_SAMPLE_TEX2DARRAY(_MainTex, float3(i.left, texIndex)).a + UNITY_SAMPLE_TEX2DARRAY(_MainTex, float3(i.right, texIndex)).a + UNITY_SAMPLE_TEX2DARRAY(_MainTex, float3(i.up, texIndex)).a + UNITY_SAMPLE_TEX2DARRAY(_MainTex, float3(i.down, texIndex)).a;
                 float isOutline = step(col.a, _OutLineInValue);
                 col = (1 - isOutline) * col + isOutline * step(_OutlineOutValue, transparent) * _OutlineColor;
                 col.a = clamp(0 , 1, col.a);
-
-                float modelAlpha = UNITY_ACCESS_INSTANCED_PROP(Props, _ModelAlpha);
-				col.a = col.a * modelAlpha;
 
                 float isBlank = UNITY_ACCESS_INSTANCED_PROP(Props, _Blank);
                 if(isBlank == 1)

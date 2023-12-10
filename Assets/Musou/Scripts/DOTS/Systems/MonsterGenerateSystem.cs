@@ -31,24 +31,30 @@ namespace MusouEcs
         [BurstCompile]
         public void OnStartRunning(ref SystemState state)
         {
-            var generator = SystemAPI.GetSingleton<MonsterGeneratorData>();
-            var generateCnt = generator.CntX * generator.CntY;
-            SharedStaticMonsterData.SharedValue.Data = new SharedStaticMonsterData(generateCnt);
-            var monsters = CollectionHelper.CreateNativeArray<Entity>(generator.CntX * generator.CntY, Allocator.Temp);
-            state.EntityManager.Instantiate(generator.MonsterProtoType, monsters);
-
             var count = 0;
-            foreach (var monster in monsters)
+            //遍历所有 MonsterGeneratorData
+            foreach (var generator in
+                     SystemAPI.Query<RefRO<MonsterGeneratorData>>())
             {
-                var x = count % generator.CntX;
-                var y = count / generator.CntX;
-                var position = new float3(x * 0.4f, y * 0.4f, 0);
-                var transform = SystemAPI.GetComponentRW<LocalTransform>(monster);
-                transform.ValueRW.Position = position;
-                count++;
+                var generateCnt = generator.ValueRO.CntX * generator.ValueRO.CntY;
+                SharedStaticMonsterData.SharedValue.Data = new SharedStaticMonsterData(generateCnt);
+                var monsters =
+                    CollectionHelper.CreateNativeArray<Entity>(generateCnt, Allocator.Temp);
+                state.EntityManager.Instantiate(generator.ValueRO.MonsterProtoType, monsters);
+
+                foreach (var monster in monsters)
+                {
+                    var x = count % generator.ValueRO.CntX;
+                    var y = count / generator.ValueRO.CntX;
+                    var position = new float3(x * 0.4f, y * 0.4f, 0);
+                    var transform = SystemAPI.GetComponentRW<LocalTransform>(monster);
+                    transform.ValueRW.Position = position;
+                    count++;
+                }
+
+                monsters.Dispose();
             }
 
-            monsters.Dispose();
             // 此System只在启动时运行一次，所以在第一次更新后关闭它。
             state.Enabled = false;
         }

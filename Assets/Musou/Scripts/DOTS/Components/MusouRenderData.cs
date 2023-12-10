@@ -17,10 +17,15 @@ namespace MusouEcs
     {
         public float CurFrame; //当前帧
     }
+    
+    [MaterialProperty("_Face")]
+    public struct MusouRenderFaceData : IComponentData
+    {
+        public float Face;
+    }
 
     public struct MusouRenderAniData : IComponentData
     {
         public float Timer; //计时器
-        public int Face; //面朝方向
     }
 }
