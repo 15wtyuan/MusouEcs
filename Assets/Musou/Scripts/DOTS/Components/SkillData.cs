@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -7,17 +9,34 @@ namespace MusouEcs
     {
     }
 
-    public struct SkillDamageTag : IComponentData
+    public struct SkillDamageData : IComponentData
     {
+        public Entity SkillEntity;
     }
 
-    public struct SkillDamageData : ISharedComponentData
+    public struct SkillDamageSharedData : ISharedComponentData
     {
         public float DamageRadius;
         public int Damage;
     }
 
     // 子弹数据
+    public struct BulletDamageData : IComponentData
+    {
+        public float DamageInterval;
+    }
+
+    public class BulletDamageDictData : IComponentData, IDisposable
+    {
+        public Dictionary<Entity, float> DamageDict;
+
+        public void Dispose()
+        {
+            DamageDict.Clear();
+            DamageDict = null;
+        }
+    }
+
     public struct BulletTranslateData : IComponentData
     {
         public float3 Delta;
@@ -38,6 +57,7 @@ namespace MusouEcs
     public struct BulletLifeData : IComponentData
     {
         public float Timer;
+        public float LifeTime;
     }
 
     public struct StraightFlyBulletData : IComponentData

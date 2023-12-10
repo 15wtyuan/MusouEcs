@@ -1,23 +1,34 @@
+using System.Collections.Generic;
 using Unity.Entities;
-using Unity.Mathematics;
 using UnityEngine;
 
 namespace MusouEcs
 {
     public class SkillBulletAuthoring : MonoBehaviour
     {
+        public float lifeTime;
+        public float damageInterval;
+
         private class SkillBulletAuthoringBaker : Baker<SkillBulletAuthoring>
         {
             public override void Bake(SkillBulletAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-
                 AddComponent(entity, new BulletTranslateData());
-
-                var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
-                AddComponent(entity, new BulletFollowPlayerData
+                AddComponent(entity, new BulletLifeData
                 {
-                    LastPlayerPos = new float3(playerPos.x, playerPos.y, 0),
+                    Timer = 0,
+                    LifeTime = authoring.lifeTime,
+                });
+
+                AddComponent(entity, new BulletDamageData
+                {
+                    DamageInterval = authoring.damageInterval,
+                });
+
+                AddComponentObject(entity, new BulletDamageDictData
+                {
+                    DamageDict = new Dictionary<Entity, float>(),
                 });
             }
         }

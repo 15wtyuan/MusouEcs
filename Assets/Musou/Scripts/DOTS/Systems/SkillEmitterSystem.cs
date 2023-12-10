@@ -1,6 +1,10 @@
+using System;
+using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MusouEcs
 {
@@ -8,7 +12,7 @@ namespace MusouEcs
     [UpdateInGroup(typeof(MusouUpdateGroup))]
     public partial class SkillEmitterSystem : SystemBase
     {
-        private Vector3[] _playerPos = new Vector3[1];
+        private readonly Vector3[] _playerPos = new Vector3[1];
 
         protected override void OnCreate()
         {
@@ -18,6 +22,8 @@ namespace MusouEcs
         protected override void OnUpdate()
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
+
+            var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
 
             foreach (var (emitterData, emitterTimerData) in
                      SystemAPI.Query<RefRO<EmitterData>, RefRW<EmitterTimerData>>())
@@ -38,7 +44,7 @@ namespace MusouEcs
                     {
                         var angleRange = emitterData.ValueRO.AngleRange;
                         createDir = createDir.RotatedByDegrees(-angleRange / 2f);
-                        if (angleRange == 360)
+                        if (Math.Abs(angleRange - 360) < float.Epsilon)
                         {
                             perChangeDegrees = angleRange / 1f / (bulletCount);
                         }
@@ -48,11 +54,31 @@ namespace MusouEcs
                         }
                     }
 
+                    var offsetPos = new Vector2(emitterData.ValueRO.CreateOffset, 0);
+
+                    var bullets =
+                        CollectionHelper.CreateNativeArray<Entity>(bulletCount, Allocator.Temp);
+                    EntityManager.Instantiate(emitterData.ValueRO.BulletProtoType, bullets);
+
                     for (int i = 0; i < bulletCount; i++)
                     {
-                        // var dir = createDir.RotatedByDegrees(perChangeDegrees * i);
-                        // var emitterPos = createPos + offsetPos.RotatedByDegrees(Vector2.SignedAngle(Vector2.right, dir));
+                        var dir = createDir.RotatedByDegrees(perChangeDegrees * i);
+                        var angle = Vector2.SignedAngle(Vector2.right, dir);
+                        var emitterPos = playerPos + offsetPos.RotatedByDegrees(angle);
+                        var bullet = bullets[i];
+                        var transform = SystemAPI.GetComponentRW<LocalTransform>(bullet);
+                        transform.ValueRW.Position = new float3(emitterPos.x, emitterPos.y, 0);
+                        transform.ValueRW.Rotation = quaternion.RotateZ(Mathf.Deg2Rad * angle);
+
+                        if (SystemAPI.HasComponent<StraightFlyBulletData>(bullet))
+                        {
+                            var straightFlyBulletData =
+                                SystemAPI.GetComponentRW<StraightFlyBulletData>(bullet);
+                            straightFlyBulletData.ValueRW.FlyDir = new float3(dir.x, dir.y, 0);
+                        }
                     }
+
+                    bullets.Dispose();
                 }
             }
         }

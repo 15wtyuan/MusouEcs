@@ -15,6 +15,7 @@ namespace MusouEcs
     {
         public int TexIndex;
         public Vector4 AtlasRect;
+        public float IsBlank;
     }
 
     [BurstCompile]
@@ -45,6 +46,9 @@ namespace MusouEcs
         [NativeDisableContainerSafetyRestriction]
         public NativeArray<Vector4> AtlasRectArray;
 
+        [NativeDisableContainerSafetyRestriction]
+        public NativeArray<float> IsBlankArray;
+
         public int StartIndex;
 
         public void Execute(int index)
@@ -53,6 +57,7 @@ namespace MusouEcs
             Matrix4X4Array[StartIndex + index] = renderData.Matrix;
             TexIndexArray[StartIndex + index] = renderData.AtlasData.TexIndex;
             AtlasRectArray[StartIndex + index] = renderData.AtlasData.AtlasRect;
+            IsBlankArray[StartIndex + index] = renderData.AtlasData.IsBlank;
         }
     }
 
@@ -64,9 +69,12 @@ namespace MusouEcs
     {
         private readonly int rectPropertyId = Shader.PropertyToID("_Rect");
         private readonly int texIndexPropertyId = Shader.PropertyToID("_TexIndex");
+        private readonly int isBlankPropertyId = Shader.PropertyToID("_Blank");
+
         private const int SliceCount = 1023; // 一次渲染最大为1023
 
-        private NativeQueue<RenderData> _nativeQueue = new(Allocator.Persistent);
+        private NativeQueue<RenderData> _nativeFrontQueue = new(Allocator.Persistent);
+        private NativeQueue<RenderData> _nativeBehindQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
 
         protected override void OnCreate()
@@ -88,6 +96,9 @@ namespace MusouEcs
             var xLeft = cameraPosition.x - horizonSize;
             var xRight = cameraPosition.x + horizonSize;
 
+            var curtime = SystemAPI.Time.ElapsedTime;
+            var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
+
             foreach (var (transform, spriteDate) in
                      SystemAPI.Query<RefRO<LocalTransform>, RefRO<MusouSpriteData>>())
             {
@@ -104,14 +115,30 @@ namespace MusouEcs
                     AtlasData = new AtlasData
                     {
                         TexIndex = spriteDate.ValueRO.TexIndex,
-                        AtlasRect = spriteDate.ValueRO.AtlasRect
+                        AtlasRect = spriteDate.ValueRO.AtlasRect,
+                        IsBlank = spriteDate.ValueRO.BlankEndTime > curtime ? 1 : 0,
                     }
                 };
-                _nativeQueue.Enqueue(renderData);
+
+                if (posY > playerPos.y)
+                {
+                    _nativeBehindQueue.Enqueue(renderData);
+                }
+                else
+                {
+                    _nativeFrontQueue.Enqueue(renderData);
+                }
             }
 
-            var nativeArray = _nativeQueue.ToArray(Allocator.TempJob);
-            _nativeQueue.Clear();
+            Render(_nativeBehindQueue);
+            _nativeBehindQueue.Clear();
+            Render(_nativeFrontQueue);
+            _nativeFrontQueue.Clear();
+        }
+
+        private void Render(NativeQueue<RenderData> renderQueue)
+        {
+            var nativeArray = renderQueue.ToArray(Allocator.TempJob);
 
             JobHandle chainHandle = new JobHandle();
             // Call sort
@@ -125,6 +152,7 @@ namespace MusouEcs
                 new NativeArray<Matrix4x4>(visibleEntityTotal, Allocator.TempJob);
             var nativeAtlasRectArray = new NativeArray<Vector4>(visibleEntityTotal, Allocator.TempJob);
             var nativeTexIndexArray = new NativeArray<float>(visibleEntityTotal, Allocator.TempJob);
+            var nativeIsBlankArray = new NativeArray<float>(visibleEntityTotal, Allocator.TempJob);
 
             var combineArraysParallelJob = new CombineArraysParallelJob
             {
@@ -132,26 +160,30 @@ namespace MusouEcs
                 NativeArray = nativeArray,
                 Matrix4X4Array = nativeMatrixArray,
                 TexIndexArray = nativeTexIndexArray,
-                AtlasRectArray = nativeAtlasRectArray
+                AtlasRectArray = nativeAtlasRectArray,
+                IsBlankArray = nativeIsBlankArray,
             };
             Dependency = combineArraysParallelJob.Schedule(nativeArray.Length, 10);
             CompleteDependency();
             nativeArray.Dispose();
 
             var matrixInstancedArray = new Matrix4x4[SliceCount];
-            var uvInstancedArray = new Vector4[SliceCount];
+            var atlasRectInstancedArray = new Vector4[SliceCount];
             var texIndexInstancedArray = new float[SliceCount];
+            var isBlankInstancedArray = new float[SliceCount];
 
             for (var i = 0; i < visibleEntityTotal; i += SliceCount)
             {
                 var sliceSize = math.min(visibleEntityTotal - i, SliceCount);
 
                 NativeArray<Matrix4x4>.Copy(nativeMatrixArray, i, matrixInstancedArray, 0, sliceSize);
-                NativeArray<Vector4>.Copy(nativeAtlasRectArray, i, uvInstancedArray, 0, sliceSize);
+                NativeArray<Vector4>.Copy(nativeAtlasRectArray, i, atlasRectInstancedArray, 0, sliceSize);
                 NativeArray<float>.Copy(nativeTexIndexArray, i, texIndexInstancedArray, 0, sliceSize);
+                NativeArray<float>.Copy(nativeIsBlankArray, i, isBlankInstancedArray, 0, sliceSize);
 
-                _materialPropertyBlock.SetVectorArray(rectPropertyId, uvInstancedArray);
+                _materialPropertyBlock.SetVectorArray(rectPropertyId, atlasRectInstancedArray);
                 _materialPropertyBlock.SetFloatArray(texIndexPropertyId, texIndexInstancedArray);
+                _materialPropertyBlock.SetFloatArray(isBlankPropertyId, isBlankInstancedArray);
 
                 Graphics.DrawMeshInstanced(
                     GameHandler.Instance.quadMesh,

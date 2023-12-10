@@ -10,6 +10,7 @@ namespace MusouEcs
         public Vector4 AtlasRect; // 图集列 图集行 显示列 显示行 
         public Matrix4x4 Matrix4X4; // 矩阵换算
         public int Face; //面朝方向
+        public float BlankEndTime; //闪白结束时间
     }
 
     public struct MusouSpriteAniSharedData : ISharedComponentData
