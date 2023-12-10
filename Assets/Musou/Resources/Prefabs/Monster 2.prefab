@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   texIndex: 2
-  texSize: {x: 167, y: 142}
+  texSize: {x: 56, y: 56}
   atlasSize: {x: 3, y: 3}
   beginFarme: 1
   endFarme: 6

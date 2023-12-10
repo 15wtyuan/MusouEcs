@@ -7,6 +7,9 @@ namespace MusouEcs
 {
     public class PlayerAuthoring : MonoBehaviour
     {
+        public int texIndex;
+        public Vector2 texSize = Vector2.one;
+        public Vector2 atlasSize;
         public int beginFarme;
         public int endFarme;
         public int frameRate;
@@ -25,23 +28,58 @@ namespace MusouEcs
                 });
 
                 // 渲染相关, 这里的版本是使用shader graph 显示，但是没解决渲染排序问题
-                AddComponent(entity, new MusouRenderAniData());
+                // AddComponent(entity, new MusouRenderAniData());
+                //
+                // AddComponent(entity, new MusouRenderFrameData
+                // {
+                //     CurFrame = 1,
+                // });
+                //
+                // AddComponent(entity, new MusouRenderFaceData
+                // {
+                //     Face = 1,
+                // });
+                //
+                // AddSharedComponent(entity, new MusouRenderAniSharedData
+                // {
+                //     BeginFarme = authoring.beginFarme,
+                //     EndFarme = authoring.endFarme,
+                //     FrameRate = authoring.frameRate,
+                // });
 
-                AddComponent(entity, new MusouRenderFrameData
+                AddComponent(entity, new MusouSpriteData
+                {
+                    TexIndex = authoring.texIndex,
+                    AtlasRect = new Vector4(authoring.atlasSize.x, authoring.atlasSize.y, 1, 1),
+                    Face = 1,
+                });
+
+                AddComponent(entity, new MusouSpriteAniData
                 {
                     CurFrame = 1,
                 });
 
-                AddComponent(entity, new MusouRenderFaceData
+                var scale = new float3(1, 1, 1);
+                if (authoring.texSize.x > authoring.texSize.y)
                 {
-                    Face = 1,
-                });
+                    scale.y = authoring.texSize.y / authoring.texSize.x;
+                }
+                else if (authoring.texSize.x < authoring.texSize.y)
+                {
+                    scale.x = authoring.texSize.x / authoring.texSize.y;
+                }
 
-                AddSharedComponent(entity, new MusouRenderAniSharedData
+                AddSharedComponent(entity, new MusouSpriteAniSharedData
                 {
                     BeginFarme = authoring.beginFarme,
                     EndFarme = authoring.endFarme,
                     FrameRate = authoring.frameRate,
+                    Scale = scale,
+                });
+
+                AddComponent(entity, new OrcaDynamicData
+                {
+                    Direction = float3.zero,
                 });
             }
         }

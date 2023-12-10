@@ -76,6 +76,7 @@ namespace MusouEcs
         private NativeQueue<RenderData> _nativeFrontQueue = new(Allocator.Persistent);
         private NativeQueue<RenderData> _nativeBehindQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
+        private readonly MaterialPropertyBlock _playermaterialPropertyBlock = new();
 
         protected override void OnCreate()
         {
@@ -132,6 +133,29 @@ namespace MusouEcs
 
             Render(_nativeBehindQueue);
             _nativeBehindQueue.Clear();
+
+            //渲染玩家
+            var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
+            var playerSpriteData = SystemAPI.GetComponentRO<MusouSpriteData>(playerEntity);
+
+            var matrixInstancedArray = new Matrix4x4[1];
+            matrixInstancedArray[0] = playerSpriteData.ValueRO.Matrix4X4;
+
+            _playermaterialPropertyBlock.SetVectorArray(rectPropertyId,
+                new[] { playerSpriteData.ValueRO.AtlasRect });
+
+            _playermaterialPropertyBlock.SetFloatArray(texIndexPropertyId,
+                new float[] { playerSpriteData.ValueRO.TexIndex });
+
+            Graphics.DrawMeshInstanced(
+                GameHandler.Instance.quadMesh,
+                0,
+                GameHandler.Instance.playerMaterial,
+                matrixInstancedArray,
+                1,
+                _playermaterialPropertyBlock
+            );
+
             Render(_nativeFrontQueue);
             _nativeFrontQueue.Clear();
         }
@@ -188,7 +212,7 @@ namespace MusouEcs
                 Graphics.DrawMeshInstanced(
                     GameHandler.Instance.quadMesh,
                     0,
-                    GameHandler.Instance.unitMaterial,
+                    GameHandler.Instance.monsterMaterial,
                     matrixInstancedArray,
                     sliceSize,
                     _materialPropertyBlock

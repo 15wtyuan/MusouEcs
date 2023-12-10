@@ -16,17 +16,15 @@ namespace MusouEcs
         [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<PlayerData>();
             state.RequireForUpdate<MusouSpriteData>();
         }
 
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
             var elapsedTime = SystemAPI.Time.DeltaTime;
             var job = new SpritePreRenderJob
-                { ElapsedTime = elapsedTime, PlayerPos = new float3(playerPos.x, playerPos.y, 0) };
+                { ElapsedTime = elapsedTime };
             job.ScheduleParallel();
         }
 
@@ -35,77 +33,76 @@ namespace MusouEcs
         {
         }
     }
-    
+
     public readonly partial struct SpritePreRenderAspect : IAspect
     {
-        public readonly RefRO<LocalTransform> LocalTransform;
-        public readonly RefRW<MusouSpriteData> SpriteData;
-        public readonly RefRW<MusouSpriteAniData> SpriteAniData;
-        public readonly MusouSpriteAniSharedData SpriteAniSharedData;
+        private readonly RefRO<LocalTransform> localTransform;
+        private readonly RefRW<MusouSpriteData> spriteData;
+        private readonly RefRW<MusouSpriteAniData> spriteAniData;
+        private readonly RefRO<OrcaDynamicData> orcaDynamicData;
+        private readonly MusouSpriteAniSharedData spriteAniSharedData;
 
-        public void FixPos(float3 playerPos)
+        public void FixPos()
         {
-            //怪物的朝向一般是向着玩家即可
-            var dirDelta = playerPos - LocalTransform.ValueRO.Position;
+            var dirDelta = orcaDynamicData.ValueRO.Direction;
 
             if (dirDelta.x > 0.05 || dirDelta.x < -0.05)
             {
                 var face = dirDelta.x > 0 ? 1 : -1;
-                SpriteData.ValueRW.Face = face;
+                spriteData.ValueRW.Face = face;
             }
 
-            SpriteData.ValueRW.Matrix4X4 =
-                Matrix4x4.TRS(LocalTransform.ValueRO.Position, Quaternion.identity,
-                    new Vector3(SpriteData.ValueRW.Face * SpriteAniSharedData.Scale.x, SpriteAniSharedData.Scale.y,
-                        SpriteAniSharedData.Scale.z));
+            spriteData.ValueRW.Matrix4X4 =
+                Matrix4x4.TRS(localTransform.ValueRO.Position, Quaternion.identity,
+                    new Vector3(spriteData.ValueRO.Face * spriteAniSharedData.Scale.x, spriteAniSharedData.Scale.y,
+                        spriteAniSharedData.Scale.z));
         }
 
         public void RunAni(float elapsedTime)
         {
-            if (SpriteAniData.ValueRO.Timer == 0)
+            if (spriteAniData.ValueRO.Timer == 0)
             {
                 PlayNextFrame();
             }
 
-            SpriteAniData.ValueRW.Timer += elapsedTime;
-            if (!(SpriteAniData.ValueRO.Timer >= 1f / SpriteAniSharedData.FrameRate)) return;
+            spriteAniData.ValueRW.Timer += elapsedTime;
+            if (!(spriteAniData.ValueRO.Timer >= 1f / spriteAniSharedData.FrameRate)) return;
 
             PlayNextFrame();
-            SpriteAniData.ValueRW.Timer = 0;
+            spriteAniData.ValueRW.Timer = 0;
         }
 
         private void PlayNextFrame()
         {
             //播放下一帧
-            if (SpriteAniData.ValueRO.CurFrame > SpriteAniSharedData.EndFarme)
+            if (spriteAniData.ValueRO.CurFrame > spriteAniSharedData.EndFarme)
             {
-                SpriteAniData.ValueRW.CurFrame = SpriteAniSharedData.BeginFarme;
+                spriteAniData.ValueRW.CurFrame = spriteAniSharedData.BeginFarme;
             }
 
-            var curRow = SpriteAniData.ValueRW.CurFrame / (int)SpriteData.ValueRO.AtlasRect.x + 1;
-            var curCol = SpriteAniData.ValueRW.CurFrame - ((curRow - 1) * (int)SpriteData.ValueRO.AtlasRect.x);
+            var curRow = spriteAniData.ValueRW.CurFrame / (int)spriteData.ValueRO.AtlasRect.x + 1;
+            var curCol = spriteAniData.ValueRW.CurFrame - ((curRow - 1) * (int)spriteData.ValueRO.AtlasRect.x);
             if (curCol == 0)
             {
                 curRow--;
-                curCol = (int)SpriteData.ValueRO.AtlasRect.x;
+                curCol = (int)spriteData.ValueRO.AtlasRect.x;
             }
 
-            curRow = (int)SpriteData.ValueRO.AtlasRect.y - curRow + 1;
-            SpriteData.ValueRW.AtlasRect = new Vector4((int)SpriteData.ValueRO.AtlasRect.x,
-                (int)SpriteData.ValueRO.AtlasRect.y, curRow, curCol);
+            curRow = (int)spriteData.ValueRO.AtlasRect.y - curRow + 1;
+            spriteData.ValueRW.AtlasRect = new Vector4((int)spriteData.ValueRO.AtlasRect.x,
+                (int)spriteData.ValueRO.AtlasRect.y, curRow, curCol);
 
-            SpriteAniData.ValueRW.CurFrame++;
+            spriteAniData.ValueRW.CurFrame++;
         }
     }
-    
+
     public partial struct SpritePreRenderJob : IJobEntity
     {
         [ReadOnly] public float ElapsedTime;
-        [ReadOnly] public float3 PlayerPos;
 
         private void Execute(SpritePreRenderAspect aspect)
         {
-            aspect.FixPos(PlayerPos);
+            aspect.FixPos();
             aspect.RunAni(ElapsedTime);
         }
     }
