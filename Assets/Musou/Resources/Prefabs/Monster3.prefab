@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4986554869597796074}
   - component: {fileID: 3983087279370557805}
   m_Layer: 0
-  m_Name: Monster 2
+  m_Name: Monster3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -45,14 +45,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   texIndex: 2
-  texSize: {x: 56, y: 56}
-  atlasSize: {x: 3, y: 3}
+  texSize: {x: 20, y: 22}
+  atlasSize: {x: 3, y: 2}
   beginFarme: 1
   endFarme: 6
-  frameRate: 10
+  frameRate: 6
   speed: 0.5
   hp: 10
-  radius: 0.4
-  radiusObst: 0.4
+  radius: 0.3
+  radiusObst: 0.3
   maxNeighbors: 15
   neighborDist: 5

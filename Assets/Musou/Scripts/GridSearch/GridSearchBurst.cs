@@ -169,6 +169,8 @@ namespace MusouEcs
                 cellStartEnd.Dispose();
             if (sortedPos.IsCreated)
                 sortedPos.Dispose();
+            
+            _isInit = false;
         }
 
         public void UpdatePositions(Vector3[] newPos)

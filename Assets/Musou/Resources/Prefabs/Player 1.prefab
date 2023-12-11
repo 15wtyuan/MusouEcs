@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70483260877f46a098da0f2acbf37c37, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  texIndex: 0
-  texSize: {x: 56, y: 83}
-  atlasSize: {x: 3, y: 4}
+  texIndex: 3
+  texSize: {x: 20, y: 22}
+  atlasSize: {x: 3, y: 2}
   beginFarme: 1
-  endFarme: 10
-  frameRate: 10
+  endFarme: 6
+  frameRate: 6
   speed: 1

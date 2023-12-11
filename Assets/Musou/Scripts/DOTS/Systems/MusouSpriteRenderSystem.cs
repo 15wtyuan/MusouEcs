@@ -73,10 +73,8 @@ namespace MusouEcs
 
         private const int SliceCount = 1023; // 一次渲染最大为1023
 
-        private NativeQueue<RenderData> _nativeFrontQueue = new(Allocator.Persistent);
-        private NativeQueue<RenderData> _nativeBehindQueue = new(Allocator.Persistent);
+        private NativeQueue<RenderData> _nativeRenderQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
-        private readonly MaterialPropertyBlock _playermaterialPropertyBlock = new();
 
         protected override void OnCreate()
         {
@@ -120,44 +118,11 @@ namespace MusouEcs
                         IsBlank = spriteDate.ValueRO.BlankEndTime > curtime ? 1 : 0,
                     }
                 };
-
-                if (posY > playerPos.y)
-                {
-                    _nativeBehindQueue.Enqueue(renderData);
-                }
-                else
-                {
-                    _nativeFrontQueue.Enqueue(renderData);
-                }
+                _nativeRenderQueue.Enqueue(renderData);
             }
 
-            Render(_nativeBehindQueue);
-            _nativeBehindQueue.Clear();
-
-            //渲染玩家
-            var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
-            var playerSpriteData = SystemAPI.GetComponentRO<MusouSpriteData>(playerEntity);
-
-            var matrixInstancedArray = new Matrix4x4[1];
-            matrixInstancedArray[0] = playerSpriteData.ValueRO.Matrix4X4;
-
-            _playermaterialPropertyBlock.SetVectorArray(rectPropertyId,
-                new[] { playerSpriteData.ValueRO.AtlasRect });
-
-            _playermaterialPropertyBlock.SetFloatArray(texIndexPropertyId,
-                new float[] { playerSpriteData.ValueRO.TexIndex });
-
-            Graphics.DrawMeshInstanced(
-                GameHandler.Instance.quadMesh,
-                0,
-                GameHandler.Instance.playerMaterial,
-                matrixInstancedArray,
-                1,
-                _playermaterialPropertyBlock
-            );
-
-            Render(_nativeFrontQueue);
-            _nativeFrontQueue.Clear();
+            Render(_nativeRenderQueue);
+            _nativeRenderQueue.Clear();
         }
 
         private void Render(NativeQueue<RenderData> renderQueue)
@@ -212,7 +177,7 @@ namespace MusouEcs
                 Graphics.DrawMeshInstanced(
                     GameHandler.Instance.quadMesh,
                     0,
-                    GameHandler.Instance.monsterMaterial,
+                    GameHandler.Instance.uniMaterial,
                     matrixInstancedArray,
                     sliceSize,
                     _materialPropertyBlock

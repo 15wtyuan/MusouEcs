@@ -40,7 +40,7 @@ namespace MusouEcs
                             .DamageDict;
 
                     foreach (var monsterEntity in from t in results
-                             where t > 0
+                             where t >= 0
                              select SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity[t])
                     {
                         if (dmgDict.TryGetValue(monsterEntity, out var value))

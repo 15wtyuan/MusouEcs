@@ -9,8 +9,7 @@ namespace MusouEcs
         public static GameHandler Instance;
 
         [SerializeField] public Texture2D[] ordinaryTextures;
-        [SerializeField] public Material monsterMaterial;
-        [SerializeField] public Material playerMaterial;
+        public Material uniMaterial;
         [SerializeField] public Mesh quadMesh;
 
         private static readonly int MainTex = Shader.PropertyToID("_MainTex");
@@ -40,7 +39,7 @@ namespace MusouEcs
             } // Apply our changes
 
             texture2DArray.Apply(); // Set the texture to a material
-            monsterMaterial.SetTexture(MainTex, texture2DArray);
+            uniMaterial.SetTexture(MainTex, texture2DArray);
         }
 
         private void OnDestroy()

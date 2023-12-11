@@ -13,6 +13,7 @@ namespace MusouEcs
     public partial class SkillEmitterSystem : SystemBase
     {
         private readonly Vector3[] _playerPos = new Vector3[1];
+        private Vector2 _saveLastPlayerMoveDir = Vector2.right;
 
         protected override void OnCreate()
         {
@@ -24,6 +25,11 @@ namespace MusouEcs
             var deltaTime = SystemAPI.Time.DeltaTime;
 
             var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
+            var playerMoveDir = SharedStaticPlayerData.SharedValue.Data.PlayerMoveDir;
+            if (playerMoveDir != Vector3.zero)
+            {
+                _saveLastPlayerMoveDir = playerMoveDir.normalized;
+            }
 
             foreach (var (emitterData, emitterTimerData) in
                      SystemAPI.Query<RefRO<EmitterData>, RefRW<EmitterTimerData>>())
@@ -125,12 +131,7 @@ namespace MusouEcs
                 case EmitterDirType.PlayerMoveDir:
                 {
                     //根据玩家方向
-                    var lastMoveDir = SharedStaticPlayerData.SharedValue.Data.PlayerMoveDir;
-                    if (lastMoveDir != Vector3.zero)
-                    {
-                        createDir = lastMoveDir.normalized;
-                    }
-
+                    createDir = _saveLastPlayerMoveDir;
                     break;
                 }
             }

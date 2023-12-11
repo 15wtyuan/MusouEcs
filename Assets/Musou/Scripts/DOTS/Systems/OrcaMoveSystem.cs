@@ -102,7 +102,15 @@ namespace MusouEcs
                 var nativeArray = _nativeQueue.ToArray(Allocator.Temp);
                 _nativeQueue.Clear();
 
-                MusouMain.Inst.Gsb.InitGrid(nativeArray);
+                if (nativeArray.Length <= 0)
+                {
+                    MusouMain.Inst.Gsb.Clean();
+                }
+                else
+                {
+                    MusouMain.Inst.Gsb.InitGrid(nativeArray);
+                }
+
                 nativeArray.Dispose();
             }
             else

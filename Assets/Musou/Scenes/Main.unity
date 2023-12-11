@@ -21476,11 +21476,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ordinaryTextures:
-  - {fileID: 2800000, guid: b60e6fc7fc87db84e8691dfa49d238c4, type: 3}
-  - {fileID: 2800000, guid: bf7f95c6143593b4891b2b0496dbc16a, type: 3}
-  - {fileID: 2800000, guid: 0247957bcfd579c468ffa6cfeaf54eb9, type: 3}
-  monsterMaterial: {fileID: 2100000, guid: 1266b078f86dff841942c929541e9b83, type: 2}
-  playerMaterial: {fileID: 2100000, guid: 65610318b3cd9d646b3802f9dd14ff2b, type: 2}
+  - {fileID: 2800000, guid: 4c589e2549625ab4b9d6d1fcf81953bf, type: 3}
+  - {fileID: 2800000, guid: 3730bb97f3e07a948b76ba5b76a192f3, type: 3}
+  - {fileID: 2800000, guid: 77e56bc2a7c5e3e4f94d4b23e7bdbc61, type: 3}
+  - {fileID: 2800000, guid: fe5c6db4b9466824bbb814b3702dadd3, type: 3}
+  uniMaterial: {fileID: 2100000, guid: 1266b078f86dff841942c929541e9b83, type: 2}
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &1710018945
 MonoBehaviour:

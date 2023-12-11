@@ -27,26 +27,6 @@ namespace MusouEcs
                     Speed = authoring.speed,
                 });
 
-                // 渲染相关, 这里的版本是使用shader graph 显示，但是没解决渲染排序问题
-                // AddComponent(entity, new MusouRenderAniData());
-                //
-                // AddComponent(entity, new MusouRenderFrameData
-                // {
-                //     CurFrame = 1,
-                // });
-                //
-                // AddComponent(entity, new MusouRenderFaceData
-                // {
-                //     Face = 1,
-                // });
-                //
-                // AddSharedComponent(entity, new MusouRenderAniSharedData
-                // {
-                //     BeginFarme = authoring.beginFarme,
-                //     EndFarme = authoring.endFarme,
-                //     FrameRate = authoring.frameRate,
-                // });
-
                 AddComponent(entity, new MusouSpriteData
                 {
                     TexIndex = authoring.texIndex,
