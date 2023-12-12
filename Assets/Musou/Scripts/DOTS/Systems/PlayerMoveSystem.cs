@@ -22,7 +22,7 @@ namespace MusouEcs
             var deltaTime = SystemAPI.Time.DeltaTime;
 
             foreach (var (transform, playerData, speedData) in
-                     SystemAPI.Query<RefRW<LocalTransform>, RefRO<PlayerData>, RefRO<SpeedData>>())
+                     SystemAPI.Query<RefRW<LocalTransform>, RefRO<PlayerData>, RefRO<MoveSpeedData>>())
             {
                 var force = SharedStaticPlayerData.SharedValue.Data.PlayerMoveDir.normalized;
                 var delta = new float3(force) * (speedData.ValueRO.Speed * deltaTime);

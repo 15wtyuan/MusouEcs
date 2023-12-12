@@ -5,6 +5,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace MusouEcs
 {
@@ -23,7 +24,7 @@ namespace MusouEcs
         {
             base.OnCreate();
 
-            RequireForUpdate<OrcaDynamicData>();
+            RequireForUpdate<MoveDirectionData>();
 
             _bundle = new ORCABundle<Agent>();
             _bundle.plane = AxisPair.XY;
@@ -55,12 +56,13 @@ namespace MusouEcs
             _playerAgent.prefVelocity = directionNormalized;
             _playerAgent.maxSpeed = math.length(direction) / deltaTime;
 
-            var playOrcaDynamicData = SystemAPI.GetComponentRW<OrcaDynamicData>(playerEntity);
+            var playOrcaDynamicData = SystemAPI.GetComponentRW<MoveDirectionData>(playerEntity);
             playOrcaDynamicData.ValueRW.Direction = directionNormalized;
 
             foreach (var (transform, directionData, speedData, _, entity) in
                      SystemAPI
-                         .Query<RefRO<LocalTransform>, RefRO<OrcaDynamicData>, RefRO<SpeedData>, RefRO<MonsterData>>()
+                         .Query<RefRO<LocalTransform>, RefRO<MoveDirectionData>, RefRO<MoveSpeedData>,
+                             RefRO<MonsterData>>()
                          .WithEntityAccess())
             {
                 if (_entity2AgentMap.TryGetValue(entity, out var value))
@@ -84,16 +86,45 @@ namespace MusouEcs
 
             if (_bundle.orca.TryComplete())
             {
+                var camera = MusouCamera.Main;
+                float3 cameraPosition = camera.transform.position;
+                var orthographicSize = camera.orthographicSize + 1f; //防止图片过大带来误差
+                var yBottom = cameraPosition.y - orthographicSize;
+                var yTop = cameraPosition.y + orthographicSize;
+                var screenHeight = Screen.height;
+                var screenWidth = Screen.width;
+                var horizonSize = orthographicSize / screenHeight * screenWidth;
+                var xLeft = cameraPosition.x - horizonSize;
+                var xRight = cameraPosition.x + horizonSize;
+
                 var index = 0;
-                foreach (var (transform, _, _, entity) in
-                         SystemAPI.Query<RefRW<LocalTransform>, RefRO<OrcaDynamicData>, RefRO<MonsterData>>()
-                             .WithEntityAccess())
+                var gsbIndex2MonsterEntity = SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity;
+                foreach (var (transform, _, entity) in
+                         SystemAPI.Query<RefRW<LocalTransform>, RefRO<MonsterData>>().WithEntityAccess())
                 {
                     if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
 
                     transform.ValueRW.Position = value.pos;
+
+                    //检查是否可以渲染，顺便也只能攻击到可被渲染的怪物
+                    var posY = transform.ValueRO.Position.y;
+                    var posX = transform.ValueRO.Position.x;
+
+                    var isMusouSpriteDataEnabled = SystemAPI.IsComponentEnabled<MusouSpriteData>(entity);
+
+                    if (posY < yBottom || posY > yTop || posX > xRight || posX < xLeft)
+                    {
+                        if (isMusouSpriteDataEnabled)
+                            SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, false);
+
+                        continue;
+                    }
+
+                    if (!isMusouSpriteDataEnabled)
+                        SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, true);
+
                     _nativeQueue.Enqueue(value.pos);
-                    SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity[index] = entity;
+                    gsbIndex2MonsterEntity[index] = entity;
                     index++;
                 }
 

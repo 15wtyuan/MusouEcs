@@ -39,7 +39,7 @@ namespace MusouEcs
         private readonly RefRO<LocalTransform> localTransform;
         private readonly RefRW<MusouSpriteData> spriteData;
         private readonly RefRW<MusouSpriteAniData> spriteAniData;
-        private readonly RefRO<OrcaDynamicData> orcaDynamicData;
+        private readonly RefRO<MoveDirectionData> orcaDynamicData;
         private readonly MusouSpriteAniSharedData spriteAniSharedData;
 
         public void FixPos()

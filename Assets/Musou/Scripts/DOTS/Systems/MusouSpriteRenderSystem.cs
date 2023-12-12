@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -21,14 +20,14 @@ namespace MusouEcs
     [BurstCompile]
     internal struct RenderData : IComparable<RenderData>
     {
-        public float3 Position;
+        public float Y;
         public Matrix4x4 Matrix;
         public AtlasData AtlasData;
 
         public int CompareTo(RenderData other)
         {
             // 按y轴排序
-            return other.Position.y.CompareTo(Position.y);
+            return other.Y.CompareTo(Y);
         }
     }
 
@@ -72,6 +71,7 @@ namespace MusouEcs
         private readonly int isBlankPropertyId = Shader.PropertyToID("_Blank");
 
         private const int SliceCount = 1023; // 一次渲染最大为1023
+        private const int MultithreadedSortLength = 500;
 
         private NativeQueue<RenderData> _nativeRenderQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
@@ -84,32 +84,14 @@ namespace MusouEcs
 
         protected override void OnUpdate()
         {
-            var camera = MusouCamera.Main;
-            float3 cameraPosition = camera.transform.position;
-            var orthographicSize = camera.orthographicSize + 1f; //防止图片过大带来误差
-            var yBottom = cameraPosition.y - orthographicSize;
-            var yTop = cameraPosition.y + orthographicSize;
-            var screenHeight = Screen.height;
-            var screenWidth = Screen.width;
-            var horizonSize = orthographicSize / screenHeight * screenWidth;
-            var xLeft = cameraPosition.x - horizonSize;
-            var xRight = cameraPosition.x + horizonSize;
-
             var curtime = SystemAPI.Time.ElapsedTime;
-            var playerPos = SharedStaticPlayerData.SharedValue.Data.PlayerPosition;
 
             foreach (var (transform, spriteDate) in
                      SystemAPI.Query<RefRO<LocalTransform>, RefRO<MusouSpriteData>>())
             {
-                var posY = transform.ValueRO.Position.y;
-                var posX = transform.ValueRO.Position.x;
-
-                if (posY < yBottom || posY > yTop) continue;
-                if (posX > xRight || posX < xLeft) continue;
-
                 var renderData = new RenderData
                 {
-                    Position = transform.ValueRO.Position,
+                    Y = transform.ValueRO.Position.y,
                     Matrix = spriteDate.ValueRO.Matrix4X4,
                     AtlasData = new AtlasData
                     {
@@ -129,11 +111,17 @@ namespace MusouEcs
         {
             var nativeArray = renderQueue.ToArray(Allocator.TempJob);
 
-            JobHandle chainHandle = new JobHandle();
-            // Call sort
-            chainHandle = MultithreadedSort.Sort(nativeArray, chainHandle);
-            Dependency = chainHandle;
-            CompleteDependency();
+            if (nativeArray.Length > MultithreadedSortLength)
+            {
+                var chainHandle = new JobHandle();
+                chainHandle = MultithreadedSort.Sort(nativeArray, chainHandle);
+                Dependency = chainHandle;
+                CompleteDependency();
+            }
+            else
+            {
+                nativeArray.Sort();
+            }
 
             var visibleEntityTotal = nativeArray.Length;
 

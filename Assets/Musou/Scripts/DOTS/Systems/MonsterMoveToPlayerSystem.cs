@@ -36,7 +36,7 @@ namespace MusouEcs
     {
         public readonly RefRO<LocalTransform> LocalTransform;
         public readonly RefRO<MonsterData> MonsterData;
-        public readonly RefRW<OrcaDynamicData> DirectionData;
+        public readonly RefRW<MoveDirectionData> DirectionData;
 
         public void Move(float3 targetPos, float deltaTime)
         {

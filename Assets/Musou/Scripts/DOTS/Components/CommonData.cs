@@ -4,12 +4,12 @@ using Unity.Mathematics;
 
 namespace MusouEcs
 {
-    public struct SpeedData : IComponentData
+    public struct MoveSpeedData : IComponentData
     {
         public float Speed;
     }
 
-    public struct OrcaDynamicData : IComponentData
+    public struct MoveDirectionData : IComponentData
     {
         public float3 Direction;
     }

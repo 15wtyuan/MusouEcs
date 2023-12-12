@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MusouEcs
 {
-    public struct MusouSpriteData : IComponentData
+    public struct MusouSpriteData : IComponentData, IEnableableComponent
     {
         public int TexIndex; // 纹理索引
         public Vector4 AtlasRect; // 图集列 图集行 显示列 显示行 

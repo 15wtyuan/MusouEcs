@@ -63,12 +63,12 @@ namespace MusouEcs
                 });
 
                 //怪物移动相关
-                AddComponent(entity, new SpeedData
+                AddComponent(entity, new MoveSpeedData
                 {
                     Speed = authoring.speed,
                 });
 
-                AddComponent(entity, new OrcaDynamicData
+                AddComponent(entity, new MoveDirectionData
                 {
                     Direction = float3.zero,
                 });

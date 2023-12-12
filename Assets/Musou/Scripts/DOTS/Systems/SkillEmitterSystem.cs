@@ -102,8 +102,8 @@ namespace MusouEcs
                 {
                     //根据玩家方向
                     var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
-                    var playerRenderFaceData = EntityManager.GetComponentData<MusouRenderFaceData>(playerEntity);
-                    var face = playerRenderFaceData.Face;
+                    var spriteData = EntityManager.GetComponentData<MusouSpriteData>(playerEntity);
+                    var face = spriteData.Face;
                     createDir = face > 0 ? Vector2.right : Vector2.left;
                     break;
                 }

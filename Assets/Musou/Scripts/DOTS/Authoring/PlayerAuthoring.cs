@@ -22,7 +22,7 @@ namespace MusouEcs
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
                 AddComponent(entity, new PlayerData());
-                AddComponent(entity, new SpeedData
+                AddComponent(entity, new MoveSpeedData
                 {
                     Speed = authoring.speed,
                 });
@@ -57,7 +57,7 @@ namespace MusouEcs
                     Scale = scale,
                 });
 
-                AddComponent(entity, new OrcaDynamicData
+                AddComponent(entity, new MoveDirectionData
                 {
                     Direction = float3.zero,
                 });
