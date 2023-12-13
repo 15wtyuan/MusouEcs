@@ -68,6 +68,7 @@ namespace MusouEcs
                 if (_entity2AgentMap.TryGetValue(entity, out var value))
                 {
                     value.prefVelocity = directionData.ValueRO.Direction;
+                    value.maxSpeed = speedData.ValueRO.Speed;
                 }
                 else
                 {

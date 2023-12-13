@@ -1,5 +1,4 @@
-﻿using Nebukam.ORCA;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 
 namespace MusouEcs
@@ -14,15 +13,10 @@ namespace MusouEcs
         public float3 Direction;
     }
 
-    public struct OrcaSharedData : ISharedComponentData
+    public struct RepelMoveData : IComponentData, IEnableableComponent
     {
-        public float Radius;
-        public float RadiusObst;
-        public int MaxNeighbors;
-        public float NeighborDist;
-    }
-
-    public struct OrcaCleanUpData : ICleanupComponentData
-    {
+        public float RepelSpeed;
+        public float3 RepelDirection;
+        public float RepelTime;
     }
 }
