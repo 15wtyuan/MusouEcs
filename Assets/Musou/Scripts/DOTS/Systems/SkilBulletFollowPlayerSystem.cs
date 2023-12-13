@@ -23,12 +23,18 @@ namespace MusouEcs
         {
             var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
             var playerTransform = SystemAPI.GetComponentRO<LocalTransform>(playerEntity);
-            foreach (var (translateData, followPlayerData) in
-                     SystemAPI.Query<RefRW<BulletTranslateData>, RefRW<BulletFollowPlayerData>>())
+            foreach (var (translateData, followPlayerData, entity) in
+                     SystemAPI.Query<RefRW<BulletTranslateData>, RefRW<BulletFollowPlayerData>>().WithEntityAccess())
             {
                 var delta = playerTransform.ValueRO.Position - followPlayerData.ValueRO.LastPlayerPos;
                 followPlayerData.ValueRW.LastPlayerPos = playerTransform.ValueRO.Position;
                 translateData.ValueRW.FollowPosDelta += delta;
+
+                if (SystemAPI.HasComponent<RotateFlyBulletData>(entity))
+                {
+                    var rotateFlyBulletData = SystemAPI.GetComponentRW<RotateFlyBulletData>(entity);
+                    rotateFlyBulletData.ValueRW.FollowPos = playerTransform.ValueRO.Position;
+                }
             }
         }
 

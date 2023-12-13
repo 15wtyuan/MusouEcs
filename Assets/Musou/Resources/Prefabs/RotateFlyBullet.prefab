@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a3e4630fa9e41069874fa7a3b688626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damageRadius: 0.33
+  damageRadius: 0.5
   damage: 1
   bullet: {fileID: 4240241209631767693}
-  repelTime: 0.3
-  repelSpeed: 2
+  repelTime: 0
+  repelSpeed: 0
 --- !u!1 &4240241209631767693
 GameObject:
   m_ObjectHideFlags: 0
@@ -60,9 +60,10 @@ GameObject:
   - component: {fileID: 7820363624968808321}
   - component: {fileID: 1180463665578944870}
   - component: {fileID: 6160425870341468338}
-  - component: {fileID: 4709628107414214794}
+  - component: {fileID: 9078674151759512483}
+  - component: {fileID: -4134341934075655065}
   m_Layer: 0
-  m_Name: StraightFlyBullet
+  m_Name: RotateFlyBullet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -125,10 +126,10 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 4ef69770c17cd47219e76038736e9e8f, type: 3}
+  m_Sprite: {fileID: 1737672109, guid: 0d5e657ee5a074e4baa53d5b248a01d2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
-  m_FlipY: 0
+  m_FlipY: 1
   m_DrawMode: 0
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
@@ -148,9 +149,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e01077a1cff749b8ba62abb575048c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 1
+  lifeTime: 10
   damageInterval: 1
---- !u!114 &4709628107414214794
+--- !u!114 &9078674151759512483
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -159,7 +160,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 4240241209631767693}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad705d3a0ebe467b8b422a7542c45b8f, type: 3}
+  m_Script: {fileID: 11500000, guid: 26f6a78391ec404c9ac126a449b97623, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flySpeed: 5
+  rotateSpeed: 360
+--- !u!114 &-4134341934075655065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4240241209631767693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e2491803d7240b7a5f334a098d597c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

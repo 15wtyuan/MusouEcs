@@ -76,6 +76,13 @@ namespace MusouEcs
                         transform.ValueRW.Position = new float3(emitterPos.x, emitterPos.y, 0);
                         transform.ValueRW.Rotation = quaternion.RotateZ(Mathf.Deg2Rad * angle);
 
+                        if (SystemAPI.HasComponent<BulletFollowPlayerData>(bullet))
+                        {
+                            var followPlayerData =
+                                SystemAPI.GetComponentRW<BulletFollowPlayerData>(bullet);
+                            followPlayerData.ValueRW.LastPlayerPos = new float3(playerPos.x, playerPos.y, 0);
+                        }
+
                         if (SystemAPI.HasComponent<StraightFlyBulletData>(bullet))
                         {
                             var straightFlyBulletData =

@@ -27,6 +27,7 @@ namespace MusouEcs
                 transform.ValueRW.Position += delta;
                 translateData.ValueRW.FollowPosDelta = float3.zero;
                 translateData.ValueRW.Delta = float3.zero;
+                translateData.ValueRW.LastDelta = delta;
             }
         }
 

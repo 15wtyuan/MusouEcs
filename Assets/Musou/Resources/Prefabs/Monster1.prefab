@@ -51,7 +51,7 @@ MonoBehaviour:
   endFarme: 6
   frameRate: 6
   speed: 0.5
-  hp: 10
+  hp: 20
   radius: 0.3
   radiusObst: 0.3
   maxNeighbors: 15

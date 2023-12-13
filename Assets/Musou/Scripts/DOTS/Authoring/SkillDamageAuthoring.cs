@@ -10,6 +10,9 @@ namespace MusouEcs
         public int damage = 1;
         public GameObject bullet;
 
+        public float repelTime;
+        public float repelSpeed;
+
         private class SkillDamageAuthoringBaker : Baker<SkillDamageAuthoring>
         {
             public override void Bake(SkillDamageAuthoring authoring)
@@ -25,6 +28,8 @@ namespace MusouEcs
                 {
                     DamageRadius = authoring.damageRadius,
                     Damage = authoring.damage,
+                    RepelTime = authoring.repelTime,
+                    RepelSpeed = authoring.repelSpeed,
                 });
             }
         }
