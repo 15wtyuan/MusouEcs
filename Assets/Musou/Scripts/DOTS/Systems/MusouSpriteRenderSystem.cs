@@ -71,7 +71,7 @@ namespace MusouEcs
         private readonly int isBlankPropertyId = Shader.PropertyToID("_Blank");
 
         private const int SliceCount = 1023; // 一次渲染最大为1023
-        private const int MultithreadedSortLength = 500;
+        private const int MultithreadedSortLength = 5;
 
         private NativeQueue<RenderData> _nativeRenderQueue = new(Allocator.Persistent);
         private readonly MaterialPropertyBlock _materialPropertyBlock = new();
@@ -113,10 +113,7 @@ namespace MusouEcs
 
             if (nativeArray.Length > MultithreadedSortLength)
             {
-                var chainHandle = new JobHandle();
-                chainHandle = MultithreadedSort.Sort(nativeArray, chainHandle);
-                Dependency = chainHandle;
-                CompleteDependency();
+                Dependency = MultithreadedSort.Sort(nativeArray, Dependency);
             }
             else
             {
@@ -140,7 +137,7 @@ namespace MusouEcs
                 AtlasRectArray = nativeAtlasRectArray,
                 IsBlankArray = nativeIsBlankArray,
             };
-            Dependency = combineArraysParallelJob.Schedule(nativeArray.Length, 10);
+            Dependency = combineArraysParallelJob.Schedule(nativeArray.Length, 10, Dependency);
             CompleteDependency();
             nativeArray.Dispose();
 
