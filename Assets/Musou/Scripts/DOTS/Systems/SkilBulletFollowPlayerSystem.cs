@@ -33,7 +33,7 @@ namespace MusouEcs
                 if (SystemAPI.HasComponent<RotateFlyBulletData>(entity))
                 {
                     var rotateFlyBulletData = SystemAPI.GetComponentRW<RotateFlyBulletData>(entity);
-                    rotateFlyBulletData.ValueRW.FollowPos = playerTransform.ValueRO.Position;
+                    rotateFlyBulletData.ValueRW.FollowPos = playerTransform.ValueRO.Position.xy;
                 }
             }
         }

@@ -44,9 +44,9 @@ namespace MusouEcs
 
                 foreach (var monster in monsters)
                 {
-                    var x = count % generator.ValueRO.CntX;
-                    var y = count / generator.ValueRO.CntX;
-                    var position = new float3(x * 0.4f, y * 0.4f, y * 0.01f);
+                    var x = count % generator.ValueRO.CntX - 20;
+                    var y = count / generator.ValueRO.CntX - 40;
+                    var position = new float3(x, y, y * 0.01f);
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(monster);
                     transform.ValueRW.Position = position;
                     count++;

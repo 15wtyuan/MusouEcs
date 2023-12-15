@@ -66,7 +66,7 @@ namespace MusouEcs
 
     public struct RotateFlyBulletData : IComponentData
     {
-        public float3 FollowPos;
+        public float2 FollowPos;
         public float RotateSpeed;
     }
 

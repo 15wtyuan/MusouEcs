@@ -73,7 +73,8 @@ namespace MusouEcs
                 }
                 else
                 {
-                    var agent = _bundle.agents.Add(transform.ValueRO.Position);
+                    var agent = _bundle.agents.Add(new float3(transform.ValueRO.Position.x,
+                        transform.ValueRO.Position.y, 0));
                     _entity2AgentMap.Add(entity, agent);
                     agent.prefVelocity = new float3(directionData.ValueRO.Direction.x,
                         directionData.ValueRO.Direction.y, 0);
@@ -97,17 +98,6 @@ namespace MusouEcs
 
             if (_bundle.orca.TryComplete())
             {
-                // var camera = MusouCamera.Main;
-                // float3 cameraPosition = camera.transform.position;
-                // var orthographicSize = camera.orthographicSize + 1f; //防止图片过大带来误差
-                // var yBottom = cameraPosition.y - orthographicSize;
-                // var yTop = cameraPosition.y + orthographicSize;
-                // var screenHeight = Screen.height;
-                // var screenWidth = Screen.width;
-                // var horizonSize = orthographicSize / screenHeight * screenWidth;
-                // var xLeft = cameraPosition.x - horizonSize;
-                // var xRight = cameraPosition.x + horizonSize;
-
                 var index = 0;
                 var gsbIndex2MonsterEntity = SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity;
                 foreach (var (transform, _, entity) in
@@ -116,24 +106,6 @@ namespace MusouEcs
                     if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
 
                     transform.ValueRW.Position = new float3(value.pos.x, value.pos.y, value.pos.y * 0.01f);
-
-                    // //检查是否可以渲染，顺便也只能攻击到可被渲染的怪物
-                    // var posY = transform.ValueRO.Position.y;
-                    // var posX = transform.ValueRO.Position.x;
-                    //
-                    // var isMusouSpriteDataEnabled = SystemAPI.IsComponentEnabled<MusouSpriteData>(entity);
-                    //
-                    // if (posY < yBottom || posY > yTop || posX > xRight || posX < xLeft)
-                    // {
-                    //     if (isMusouSpriteDataEnabled)
-                    //         SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, false);
-                    //
-                    //     continue;
-                    // }
-                    //
-                    // if (!isMusouSpriteDataEnabled)
-                    //     SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, true);
-
                     _nativeQueue.Enqueue(value.pos);
                     gsbIndex2MonsterEntity[index] = entity;
                     index++;
