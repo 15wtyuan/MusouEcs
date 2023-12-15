@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e01077a1cff749b8ba62abb575048c35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 1
+  lifeTime: 2
   damageInterval: 1
 --- !u!114 &4709628107414214794
 MonoBehaviour:
@@ -162,4 +162,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad705d3a0ebe467b8b422a7542c45b8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  flySpeed: 5
+  flySpeed: 10

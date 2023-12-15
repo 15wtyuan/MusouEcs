@@ -2,14 +2,12 @@
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace MusouEcs
 {
     public class MonsterAuthoring : MonoBehaviour
     {
-        public int texIndex;
-        public Vector2 texSize = Vector2.one;
-        public Vector2 atlasSize;
         public int beginFarme;
         public int endFarme;
         public int frameRate;
@@ -32,35 +30,7 @@ namespace MusouEcs
                     Hp = authoring.hp,
                 });
 
-                // 怪物动画相关
-                // AddComponent(entity, new MusouSpriteData
-                // {
-                //     TexIndex = authoring.texIndex,
-                //     AtlasRect = new Vector4(authoring.atlasSize.x, authoring.atlasSize.y, 1, 1),
-                // });
-                //
-                // AddComponent(entity, new MusouSpriteAniData
-                // {
-                //     CurFrame = 1,
-                // });
-                //
-                // var scale = new float3(1, 1, 1);
-                // if (authoring.texSize.x > authoring.texSize.y)
-                // {
-                //     scale.y = authoring.texSize.y / authoring.texSize.x;
-                // }
-                // else if (authoring.texSize.x < authoring.texSize.y)
-                // {
-                //     scale.x = authoring.texSize.x / authoring.texSize.y;
-                // }
-                //
-                // AddSharedComponent(entity, new MusouSpriteAniSharedData
-                // {
-                //     BeginFarme = authoring.beginFarme,
-                //     EndFarme = authoring.endFarme,
-                //     FrameRate = authoring.frameRate,
-                //     Scale = scale,
-                // });
+                // 渲染
 
                 AddSharedComponent(entity, new MusouRenderAniSharedData
                 {
@@ -71,7 +41,7 @@ namespace MusouEcs
 
                 AddComponent(entity, new MusouRenderFrameData
                 {
-                    Frame = authoring.beginFarme,
+                    Frame = Random.Range(authoring.beginFarme, authoring.endFarme + 1)
                 });
 
                 AddComponent(entity, new MusouRenderFaceData
@@ -82,6 +52,16 @@ namespace MusouEcs
                 AddComponent(entity, new MusouRenderAniData
                 {
                     Timer = 0,
+                });
+
+                AddComponent(entity, new MusouRenderBlankData
+                {
+                    BlankOpacity = 0f,
+                });
+
+                AddComponent(entity, new MusouRenderBlankTimeData
+                {
+                    BlankEndTime = 0f,
                 });
 
                 //怪物移动相关

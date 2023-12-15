@@ -200,8 +200,8 @@ MonoBehaviour:
   bulletPrefab: {fileID: 4240241209631767693, guid: 71f81dbed9f8eea4db64f11d4dceb9d5, type: 3}
   emitterInterval: 2
   createOffset: 0.33
-  bulletCount: 3
-  angleRange: 60
+  bulletCount: 12
+  angleRange: 180
   emitterDirType: 4
 --- !u!4 &926137726
 Transform:

@@ -24,9 +24,10 @@ namespace MusouEcs
                      SystemAPI.Query<RefRW<BulletTranslateData>, RefRW<LocalTransform>>())
             {
                 var delta = translateData.ValueRO.Delta + translateData.ValueRO.FollowPosDelta;
-                transform.ValueRW.Position += delta;
-                translateData.ValueRW.FollowPosDelta = float3.zero;
-                translateData.ValueRW.Delta = float3.zero;
+                transform.ValueRW.Position.xy += delta;
+                transform.ValueRW.Position.z = transform.ValueRW.Position.y * 0.01f - 1;
+                translateData.ValueRW.FollowPosDelta = float2.zero;
+                translateData.ValueRW.Delta = float2.zero;
                 translateData.ValueRW.LastDelta = delta;
             }
         }

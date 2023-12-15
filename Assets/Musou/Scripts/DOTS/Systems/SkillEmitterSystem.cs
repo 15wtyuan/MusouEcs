@@ -80,14 +80,14 @@ namespace MusouEcs
                         {
                             var followPlayerData =
                                 SystemAPI.GetComponentRW<BulletFollowPlayerData>(bullet);
-                            followPlayerData.ValueRW.LastPlayerPos = new float3(playerPos.x, playerPos.y, 0);
+                            followPlayerData.ValueRW.LastPlayerPos = new float2(playerPos.x, playerPos.y);
                         }
 
                         if (SystemAPI.HasComponent<StraightFlyBulletData>(bullet))
                         {
                             var straightFlyBulletData =
                                 SystemAPI.GetComponentRW<StraightFlyBulletData>(bullet);
-                            straightFlyBulletData.ValueRW.FlyDir = new float3(dir.x, dir.y, 0);
+                            straightFlyBulletData.ValueRW.FlyDir = new float2(dir.x, dir.y);
                         }
                     }
 
@@ -109,7 +109,7 @@ namespace MusouEcs
                 {
                     //根据玩家方向
                     var playerEntity = SystemAPI.GetSingletonEntity<PlayerData>();
-                    var spriteData = EntityManager.GetComponentData<MusouSpriteData>(playerEntity);
+                    var spriteData = EntityManager.GetComponentData<MusouRenderFaceData>(playerEntity);
                     var face = spriteData.Face;
                     createDir = face > 0 ? Vector2.right : Vector2.left;
                     break;

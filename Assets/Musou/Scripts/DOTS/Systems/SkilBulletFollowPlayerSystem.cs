@@ -26,8 +26,8 @@ namespace MusouEcs
             foreach (var (translateData, followPlayerData, entity) in
                      SystemAPI.Query<RefRW<BulletTranslateData>, RefRW<BulletFollowPlayerData>>().WithEntityAccess())
             {
-                var delta = playerTransform.ValueRO.Position - followPlayerData.ValueRO.LastPlayerPos;
-                followPlayerData.ValueRW.LastPlayerPos = playerTransform.ValueRO.Position;
+                var delta = playerTransform.ValueRO.Position.xy - followPlayerData.ValueRO.LastPlayerPos;
+                followPlayerData.ValueRW.LastPlayerPos = playerTransform.ValueRO.Position.xy;
                 translateData.ValueRW.FollowPosDelta += delta;
 
                 if (SystemAPI.HasComponent<RotateFlyBulletData>(entity))

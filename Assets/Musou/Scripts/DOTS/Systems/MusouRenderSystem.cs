@@ -19,19 +19,22 @@ namespace MusouEcs
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            var elapsedTime = SystemAPI.Time.DeltaTime;
+            var elapsedTime = SystemAPI.Time.ElapsedTime;
+            var deltaTime = SystemAPI.Time.DeltaTime;
             var job = new MusouRenderJob
-                { ElapsedTime = elapsedTime };
+            {
+                ElapsedTime = elapsedTime,
+                DeltaTime = deltaTime,
+            };
             job.ScheduleParallel();
         }
 
         [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
-
         }
     }
-    
+
     [BurstCompile]
     public readonly partial struct MusouRenderAspect : IAspect
     {
@@ -39,27 +42,31 @@ namespace MusouEcs
         private readonly RefRW<MusouRenderAniData> _renderAniData;
         private readonly RefRW<MusouRenderFrameData> _renderFrameData;
         private readonly RefRO<MoveDirectionData> _moveDirectionData;
+        private readonly RefRW<MusouRenderBlankData> _renderBlankData;
+        private readonly RefRO<MusouRenderBlankTimeData> _renderBlankTimeData;
         private readonly MusouRenderAniSharedData _renderAniSharedData;
 
-        public void FixPos()
+        public void FixFace()
         {
             var dirDelta = _moveDirectionData.ValueRO.Direction;
-
-            if (dirDelta.x > 0.05 || dirDelta.x < -0.05)
-            {
-                var face = dirDelta.x > 0 ? 1 : -1;
-                _renderFaceData.ValueRW.Face = face;
-            }
+            if (!(dirDelta.x > 0.05) && !(dirDelta.x < -0.05)) return;
+            var face = dirDelta.x > 0 ? 1 : -1;
+            _renderFaceData.ValueRW.Face = face;
         }
 
-        public void RunAni(float elapsedTime)
+        public void FixBlank(double elapsedTime)
+        {
+            _renderBlankData.ValueRW.BlankOpacity = _renderBlankTimeData.ValueRO.BlankEndTime > elapsedTime ? 0.5f : 0f;
+        }
+
+        public void RunAni(float deltaTime)
         {
             if (_renderAniData.ValueRO.Timer == 0)
             {
                 PlayNextFrame();
             }
 
-            _renderAniData.ValueRW.Timer += elapsedTime;
+            _renderAniData.ValueRW.Timer += deltaTime;
             if (!(_renderAniData.ValueRO.Timer >= 1f / _renderAniSharedData.FrameRate)) return;
 
             PlayNextFrame();
@@ -76,16 +83,18 @@ namespace MusouEcs
             }
         }
     }
-    
+
     [BurstCompile]
     public partial struct MusouRenderJob : IJobEntity
     {
-        [ReadOnly] public float ElapsedTime;
+        [ReadOnly] public double ElapsedTime;
+        [ReadOnly] public float DeltaTime;
 
         private void Execute(MusouRenderAspect aspect)
         {
-            aspect.FixPos();
-            aspect.RunAni(ElapsedTime);
+            aspect.FixFace();
+            aspect.FixBlank(ElapsedTime);
+            aspect.RunAni(DeltaTime);
         }
     }
 }

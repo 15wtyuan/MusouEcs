@@ -42,20 +42,14 @@ namespace MusouEcs
 
     public struct BulletTranslateData : IComponentData
     {
-        public float3 Delta;
-        public float3 FollowPosDelta;
-        public float3 LastDelta;
+        public float2 Delta;
+        public float2 FollowPosDelta;
+        public float2 LastDelta;
     }
 
     public struct BulletFollowPlayerData : IComponentData
     {
-        public float3 LastPlayerPos;
-    }
-
-    public struct BulletBornData : IComponentData
-    {
-        public float3 BornPos;
-        public float3 EmitterPos;
+        public float2 LastPlayerPos;
     }
 
     public struct BulletLifeData : IComponentData
@@ -66,7 +60,7 @@ namespace MusouEcs
 
     public struct StraightFlyBulletData : IComponentData
     {
-        public float3 FlyDir;
+        public float2 FlyDir;
         public float FlySpeed;
     }
 
@@ -74,11 +68,6 @@ namespace MusouEcs
     {
         public float3 FollowPos;
         public float RotateSpeed;
-    }
-
-    public struct RotateSelfBulletData : IComponentData
-    {
-        public float3 RotateSpeed;
     }
 
     // 发射器数据

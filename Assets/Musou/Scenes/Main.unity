@@ -12720,7 +12720,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 2000
   field of view: 60
   orthographic: 1
   orthographic size: 10
@@ -12748,7 +12748,7 @@ Transform:
   m_GameObject: {fileID: 628919360}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -1000}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21455,7 +21455,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1710018946}
   - component: {fileID: 1710018945}
-  - component: {fileID: 1710018944}
   m_Layer: 0
   m_Name: Main
   m_TagString: Untagged
@@ -21463,25 +21462,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1710018944
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1710018943}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93eafc836c9c41aabab6fba22c2a273f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ordinaryTextures:
-  - {fileID: 2800000, guid: 4c589e2549625ab4b9d6d1fcf81953bf, type: 3}
-  - {fileID: 2800000, guid: 3730bb97f3e07a948b76ba5b76a192f3, type: 3}
-  - {fileID: 2800000, guid: 77e56bc2a7c5e3e4f94d4b23e7bdbc61, type: 3}
-  - {fileID: 2800000, guid: fe5c6db4b9466824bbb814b3702dadd3, type: 3}
-  uniMaterial: {fileID: 2100000, guid: 1266b078f86dff841942c929541e9b83, type: 2}
-  quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &1710018945
 MonoBehaviour:
   m_ObjectHideFlags: 0

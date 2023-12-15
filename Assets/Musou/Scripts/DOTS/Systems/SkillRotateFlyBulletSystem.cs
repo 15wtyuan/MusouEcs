@@ -26,13 +26,13 @@ namespace MusouEcs
             foreach (var (rotateFlyBulletData, translateData, transform) in
                      SystemAPI.Query<RefRO<RotateFlyBulletData>, RefRW<BulletTranslateData>, RefRW<LocalTransform>>())
             {
-                var curPos = transform.ValueRO.Position;
-                var curFollowPos = rotateFlyBulletData.ValueRO.FollowPos;
+                var curPos = transform.ValueRO.Position.xy;
+                var curFollowPos = rotateFlyBulletData.ValueRO.FollowPos.xy;
                 var pos =
                     new Vector2(curPos.x, curPos.y).RotatedByDegrees(
                         rotateFlyBulletData.ValueRO.RotateSpeed * deltaTime,
                         new Vector2(curFollowPos.x, curFollowPos.y));
-                translateData.ValueRW.Delta += new float3(pos.x, pos.y, 0) - curPos;
+                translateData.ValueRW.Delta += new float2(pos.x, pos.y) - curPos;
 
                 var translateDelta = new Vector2(translateData.ValueRO.Delta.x, translateData.ValueRO.Delta.y);
                 var curRotate = Vector2.SignedAngle(Vector2.right, translateDelta);

@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
+using UnityEngine;
 
 namespace MusouEcs
 {
@@ -30,7 +31,8 @@ namespace MusouEcs
                          SystemAPI.Query<RefRO<SkillDamageData>, RefRO<LocalToWorld>>().WithEntityAccess())
                 {
                     var skillDamageShareData = EntityManager.GetSharedComponent<SkillDamageSharedData>(bulletEntity);
-                    _queryPoints[0] = transform.ValueRO.Position;
+                    var queryPoint = transform.ValueRO.Position;
+                    _queryPoints[0] = new float3(queryPoint.x, queryPoint.y, 0);
                     var results = MusouMain.Inst.Gsb.SearchWithin(_queryPoints, skillDamageShareData.DamageRadius, 100);
 
                     var bulletDamageData =
@@ -56,10 +58,10 @@ namespace MusouEcs
                         dmgDict[monsterEntity] = (float)curTime;
 
                         // 受击闪白
-                        if (SystemAPI.HasComponent<MusouSpriteData>(monsterEntity))
+                        if (SystemAPI.HasComponent<MusouRenderBlankTimeData>(monsterEntity))
                         {
-                            var spriteData = SystemAPI.GetComponentRW<MusouSpriteData>(monsterEntity);
-                            spriteData.ValueRW.BlankEndTime = (float)curTime + MusouSetting.BLANK_TIME;
+                            var blankData = SystemAPI.GetComponentRW<MusouRenderBlankTimeData>(monsterEntity);
+                            blankData.ValueRW.BlankEndTime = curTime + MusouSetting.BLANK_TIME;
                         }
 
                         // 技能击退
