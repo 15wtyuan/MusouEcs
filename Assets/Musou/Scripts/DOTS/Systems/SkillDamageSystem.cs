@@ -54,7 +54,7 @@ namespace MusouEcs
                         var monsterData = SystemAPI.GetComponentRW<MonsterData>(monsterEntity);
                         monsterData.ValueRW.Hp -= skillDamageShareData.Damage;
                         dmgDict[monsterEntity] = (float)curTime;
-                        
+
                         // 受击闪白
                         if (SystemAPI.HasComponent<MusouSpriteData>(monsterEntity))
                         {
@@ -70,7 +70,7 @@ namespace MusouEcs
                             SystemAPI.SetComponentEnabled<RepelMoveData>(monsterEntity, true);
                             var repelMoveData = SystemAPI.GetComponentRW<RepelMoveData>(monsterEntity);
                             repelMoveData.ValueRW.RepelDirection =
-                                math.normalize(bulletTranslateData.ValueRO.LastDelta);
+                                math.normalize(bulletTranslateData.ValueRO.LastDelta).xy;
                             repelMoveData.ValueRW.RepelTime = skillDamageShareData.RepelTime;
                             repelMoveData.ValueRW.RepelSpeed = skillDamageShareData.RepelSpeed;
                         }

@@ -90,7 +90,8 @@ namespace MusouEcs
             foreach (var (repelMoveData, entity) in SystemAPI.Query<RefRO<RepelMoveData>>().WithEntityAccess())
             {
                 if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
-                value.prefVelocity = repelMoveData.ValueRO.RepelDirection;
+                value.prefVelocity = new float3(repelMoveData.ValueRO.RepelDirection.x,
+                    repelMoveData.ValueRO.RepelDirection.y, 0);
                 value.maxSpeed = repelMoveData.ValueRO.RepelSpeed;
             }
 
