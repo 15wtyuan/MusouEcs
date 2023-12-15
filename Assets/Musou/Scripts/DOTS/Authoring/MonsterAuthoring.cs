@@ -102,6 +102,9 @@ namespace MusouEcs
                     MaxNeighbors = authoring.maxNeighbors,
                     NeighborDist = authoring.neighborDist,
                 });
+
+                AddComponent(entity, new RepelMoveData());
+                SetComponentEnabled<RepelMoveData>(entity, false);
             }
         }
     }

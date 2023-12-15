@@ -26,10 +26,10 @@ namespace MusouEcs
 
                 _queryPoints = new NativeArray<float3>(1, Allocator.TempJob);
 
-                foreach (var (skillDamageData, transform, entity) in
+                foreach (var (skillDamageData, transform, bulletEntity) in
                          SystemAPI.Query<RefRO<SkillDamageData>, RefRO<LocalToWorld>>().WithEntityAccess())
                 {
-                    var skillDamageShareData = EntityManager.GetSharedComponent<SkillDamageSharedData>(entity);
+                    var skillDamageShareData = EntityManager.GetSharedComponent<SkillDamageSharedData>(bulletEntity);
                     _queryPoints[0] = transform.ValueRO.Position;
                     var results = MusouMain.Inst.Gsb.SearchWithin(_queryPoints, skillDamageShareData.DamageRadius, 100);
 
@@ -43,21 +43,37 @@ namespace MusouEcs
                              where t >= 0
                              select SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity[t])
                     {
+                        // 防止重复受击
                         if (dmgDict.TryGetValue(monsterEntity, out var value))
                         {
                             if (curTime - value < bulletDamageData.ValueRO.DamageInterval)
                                 continue;
                         }
 
+                        // 伤害
                         var monsterData = SystemAPI.GetComponentRW<MonsterData>(monsterEntity);
                         monsterData.ValueRW.Hp -= skillDamageShareData.Damage;
+                        dmgDict[monsterEntity] = (float)curTime;
+                        
+                        // 受击闪白
                         if (SystemAPI.HasComponent<MusouSpriteData>(monsterEntity))
                         {
                             var spriteData = SystemAPI.GetComponentRW<MusouSpriteData>(monsterEntity);
                             spriteData.ValueRW.BlankEndTime = (float)curTime + MusouSetting.BLANK_TIME;
                         }
 
-                        dmgDict[monsterEntity] = (float)curTime;
+                        // 技能击退
+                        if (skillDamageShareData.RepelSpeed > 0 && SystemAPI.HasComponent<RepelMoveData>(monsterEntity))
+                        {
+                            var bulletTranslateData =
+                                SystemAPI.GetComponentRO<BulletTranslateData>(skillDamageData.ValueRO.SkillEntity);
+                            SystemAPI.SetComponentEnabled<RepelMoveData>(monsterEntity, true);
+                            var repelMoveData = SystemAPI.GetComponentRW<RepelMoveData>(monsterEntity);
+                            repelMoveData.ValueRW.RepelDirection =
+                                math.normalize(bulletTranslateData.ValueRO.LastDelta);
+                            repelMoveData.ValueRW.RepelTime = skillDamageShareData.RepelTime;
+                            repelMoveData.ValueRW.RepelSpeed = skillDamageShareData.RepelSpeed;
+                        }
                     }
 
                     results.Dispose();

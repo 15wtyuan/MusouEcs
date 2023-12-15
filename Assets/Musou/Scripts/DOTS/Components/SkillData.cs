@@ -18,6 +18,9 @@ namespace MusouEcs
     {
         public float DamageRadius;
         public int Damage;
+
+        public float RepelTime;
+        public float RepelSpeed;
     }
 
     // 子弹数据
@@ -41,6 +44,7 @@ namespace MusouEcs
     {
         public float3 Delta;
         public float3 FollowPosDelta;
+        public float3 LastDelta;
     }
 
     public struct BulletFollowPlayerData : IComponentData
@@ -69,7 +73,7 @@ namespace MusouEcs
     public struct RotateFlyBulletData : IComponentData
     {
         public float3 FollowPos;
-        public float3 RotateSpeed;
+        public float RotateSpeed;
     }
 
     public struct RotateSelfBulletData : IComponentData

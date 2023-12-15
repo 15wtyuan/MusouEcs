@@ -87,6 +87,13 @@ namespace MusouEcs
                 }
             }
 
+            foreach (var (repelMoveData, entity) in SystemAPI.Query<RefRO<RepelMoveData>>().WithEntityAccess())
+            {
+                if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
+                value.prefVelocity = repelMoveData.ValueRO.RepelDirection;
+                value.maxSpeed = repelMoveData.ValueRO.RepelSpeed;
+            }
+
             if (_bundle.orca.TryComplete())
             {
                 // var camera = MusouCamera.Main;
