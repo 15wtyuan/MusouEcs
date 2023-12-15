@@ -46,7 +46,7 @@ namespace MusouEcs
                 {
                     var x = count % generator.ValueRO.CntX;
                     var y = count / generator.ValueRO.CntX;
-                    var position = new float3(x * 0.4f, y * 0.4f, 0);
+                    var position = new float3(x * 0.4f, y * 0.4f, y * 0.01f);
                     var transform = SystemAPI.GetComponentRW<LocalTransform>(monster);
                     transform.ValueRW.Position = position;
                     count++;

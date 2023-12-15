@@ -1,5 +1,6 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using UnityEngine;
 
 namespace MusouEcs
@@ -25,5 +26,30 @@ namespace MusouEcs
     {
         public float Timer; //计时器
         public int CurFrame; //当前帧
+    }
+
+    // 渲染
+    public struct MusouRenderAniSharedData : ISharedComponentData
+    {
+        public int BeginFarme;
+        public int EndFarme;
+        public int FrameRate;
+    }
+
+    [MaterialProperty("_Frame")]
+    public struct MusouRenderFrameData : IComponentData
+    {
+        public float Frame; //当前帧
+    }
+
+    [MaterialProperty("_Face")]
+    public struct MusouRenderFaceData : IComponentData
+    {
+        public float Face; //当前帧
+    }
+
+    public struct MusouRenderAniData : IComponentData
+    {
+        public float Timer; //计时器
     }
 }

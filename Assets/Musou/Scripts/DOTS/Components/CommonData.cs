@@ -10,13 +10,13 @@ namespace MusouEcs
 
     public struct MoveDirectionData : IComponentData
     {
-        public float3 Direction;
+        public float2 Direction;
     }
 
     public struct RepelMoveData : IComponentData, IEnableableComponent
     {
         public float RepelSpeed;
-        public float3 RepelDirection;
+        public float2 RepelDirection;
         public float RepelTime;
     }
 }

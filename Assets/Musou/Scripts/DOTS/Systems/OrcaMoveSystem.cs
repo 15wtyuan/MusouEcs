@@ -50,10 +50,10 @@ namespace MusouEcs
                 _playerAgent.layerIgnore = ORCALayer.L0;
             }
 
-            var direction = playerTransform.ValueRW.Position - _playerLastPos;
+            var direction = playerTransform.ValueRW.Position.xy - _playerLastPos.xy;
             var directionNormalized = math.normalizesafe(direction);
-            _playerLastPos = playerTransform.ValueRW.Position;
-            _playerAgent.prefVelocity = directionNormalized;
+            _playerLastPos.xy = playerTransform.ValueRW.Position.xy;
+            _playerAgent.prefVelocity = new float3(directionNormalized.x, directionNormalized.y, 0);
             _playerAgent.maxSpeed = math.length(direction) / deltaTime;
 
             var playOrcaDynamicData = SystemAPI.GetComponentRW<MoveDirectionData>(playerEntity);
@@ -67,14 +67,16 @@ namespace MusouEcs
             {
                 if (_entity2AgentMap.TryGetValue(entity, out var value))
                 {
-                    value.prefVelocity = directionData.ValueRO.Direction;
+                    value.prefVelocity = new float3(directionData.ValueRO.Direction.x,
+                        directionData.ValueRO.Direction.y, 0);
                     value.maxSpeed = speedData.ValueRO.Speed;
                 }
                 else
                 {
                     var agent = _bundle.agents.Add(transform.ValueRO.Position);
                     _entity2AgentMap.Add(entity, agent);
-                    agent.prefVelocity = directionData.ValueRO.Direction;
+                    agent.prefVelocity = new float3(directionData.ValueRO.Direction.x,
+                        directionData.ValueRO.Direction.y, 0);
                     agent.maxSpeed = speedData.ValueRO.Speed;
                     var orcaSharedData = EntityManager.GetSharedComponent<OrcaSharedData>(entity);
                     agent.radius = orcaSharedData.Radius;
@@ -87,16 +89,16 @@ namespace MusouEcs
 
             if (_bundle.orca.TryComplete())
             {
-                var camera = MusouCamera.Main;
-                float3 cameraPosition = camera.transform.position;
-                var orthographicSize = camera.orthographicSize + 1f; //防止图片过大带来误差
-                var yBottom = cameraPosition.y - orthographicSize;
-                var yTop = cameraPosition.y + orthographicSize;
-                var screenHeight = Screen.height;
-                var screenWidth = Screen.width;
-                var horizonSize = orthographicSize / screenHeight * screenWidth;
-                var xLeft = cameraPosition.x - horizonSize;
-                var xRight = cameraPosition.x + horizonSize;
+                // var camera = MusouCamera.Main;
+                // float3 cameraPosition = camera.transform.position;
+                // var orthographicSize = camera.orthographicSize + 1f; //防止图片过大带来误差
+                // var yBottom = cameraPosition.y - orthographicSize;
+                // var yTop = cameraPosition.y + orthographicSize;
+                // var screenHeight = Screen.height;
+                // var screenWidth = Screen.width;
+                // var horizonSize = orthographicSize / screenHeight * screenWidth;
+                // var xLeft = cameraPosition.x - horizonSize;
+                // var xRight = cameraPosition.x + horizonSize;
 
                 var index = 0;
                 var gsbIndex2MonsterEntity = SharedStaticMonsterData.SharedValue.Data.GsbIndex2MonsterEntity;
@@ -105,24 +107,24 @@ namespace MusouEcs
                 {
                     if (!_entity2AgentMap.TryGetValue(entity, out var value)) continue;
 
-                    transform.ValueRW.Position = value.pos;
+                    transform.ValueRW.Position = new float3(value.pos.x, value.pos.y, value.pos.y * 0.01f);
 
-                    //检查是否可以渲染，顺便也只能攻击到可被渲染的怪物
-                    var posY = transform.ValueRO.Position.y;
-                    var posX = transform.ValueRO.Position.x;
-
-                    var isMusouSpriteDataEnabled = SystemAPI.IsComponentEnabled<MusouSpriteData>(entity);
-
-                    if (posY < yBottom || posY > yTop || posX > xRight || posX < xLeft)
-                    {
-                        if (isMusouSpriteDataEnabled)
-                            SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, false);
-
-                        continue;
-                    }
-
-                    if (!isMusouSpriteDataEnabled)
-                        SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, true);
+                    // //检查是否可以渲染，顺便也只能攻击到可被渲染的怪物
+                    // var posY = transform.ValueRO.Position.y;
+                    // var posX = transform.ValueRO.Position.x;
+                    //
+                    // var isMusouSpriteDataEnabled = SystemAPI.IsComponentEnabled<MusouSpriteData>(entity);
+                    //
+                    // if (posY < yBottom || posY > yTop || posX > xRight || posX < xLeft)
+                    // {
+                    //     if (isMusouSpriteDataEnabled)
+                    //         SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, false);
+                    //
+                    //     continue;
+                    // }
+                    //
+                    // if (!isMusouSpriteDataEnabled)
+                    //     SystemAPI.SetComponentEnabled<MusouSpriteData>(entity, true);
 
                     _nativeQueue.Enqueue(value.pos);
                     gsbIndex2MonsterEntity[index] = entity;

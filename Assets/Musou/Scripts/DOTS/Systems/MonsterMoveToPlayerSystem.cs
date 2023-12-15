@@ -40,7 +40,7 @@ namespace MusouEcs
 
         public void Move(float3 targetPos, float deltaTime)
         {
-            var dir = (targetPos - LocalTransform.ValueRO.Position);
+            var dir = (targetPos.xy - LocalTransform.ValueRO.Position.xy);
             dir = math.normalizesafe(dir);
             DirectionData.ValueRW.Direction = dir;
         }

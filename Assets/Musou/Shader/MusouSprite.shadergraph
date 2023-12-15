@@ -8,6 +8,9 @@
         },
         {
             "m_Id": "0cf59bb1994c48c6a0f3e25737feb07c"
+        },
+        {
+            "m_Id": "0aa6684a741349fa90f491e64c3ca14c"
         }
     ],
     "m_Keywords": [],
@@ -62,6 +65,12 @@
         },
         {
             "m_Id": "789e7ac96bd741ccbe2ee6971009ebf2"
+        },
+        {
+            "m_Id": "43f33dcee6424b2784a21805dc18db35"
+        },
+        {
+            "m_Id": "424b6f06c7e14a91bd421c1d2ff75837"
         }
     ],
     "m_GroupDatas": [],
@@ -79,6 +88,20 @@
                     "m_Id": "ec16726dab7b4f3c83884fb7b4cae3ed"
                 },
                 "m_SlotId": 2
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "424b6f06c7e14a91bd421c1d2ff75837"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "c8a2c96c6e00438c8b038c921178f2cd"
+                },
+                "m_SlotId": 1
             }
         },
         {
@@ -278,6 +301,9 @@
             },
             {
                 "m_Id": "3fc0c19a733a43a49ea810b48f82009c"
+            },
+            {
+                "m_Id": "43f33dcee6424b2784a21805dc18db35"
             }
         ]
     },
@@ -354,6 +380,33 @@
 }
 
 {
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DArrayShaderProperty",
+    "m_ObjectId": "0aa6684a741349fa90f491e64c3ca14c",
+    "m_Guid": {
+        "m_GuidSerialized": "199b2ba1-56f0-431b-a0b1-8719b8eac770"
+    },
+    "m_Name": "MainTex",
+    "m_DefaultRefNameVersion": 1,
+    "m_RefNameGeneratedByDisplayName": "MainTex",
+    "m_DefaultReferenceName": "_MainTex",
+    "m_OverrideReferenceName": "",
+    "m_GeneratePropertyBlock": true,
+    "m_UseCustomSlotLabel": false,
+    "m_CustomSlotLabel": "",
+    "m_DismissedVersion": 0,
+    "m_Precision": 0,
+    "overrideHLSLDeclaration": false,
+    "hlslDeclarationOverride": 0,
+    "m_Hidden": false,
+    "m_Value": {
+        "m_SerializedTexture": "{\"textureArray\":{\"instanceID\":0}}",
+        "m_Guid": ""
+    },
+    "m_Modifiable": true
+}
+
+{
     "m_SGVersion": 1,
     "m_Type": "UnityEditor.ShaderGraph.Internal.Vector1ShaderProperty",
     "m_ObjectId": "0cf59bb1994c48c6a0f3e25737feb07c",
@@ -420,6 +473,21 @@
     "m_Labels": [
         "Y"
     ]
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector1MaterialSlot",
+    "m_ObjectId": "29913e82606f4f84b8124a23f1a17f1f",
+    "m_Id": 0,
+    "m_DisplayName": "Alpha Clip Threshold",
+    "m_SlotType": 0,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "AlphaClipThreshold",
+    "m_StageCapability": 2,
+    "m_Value": 0.5,
+    "m_DefaultValue": 0.5,
+    "m_Labels": []
 }
 
 {
@@ -607,6 +675,42 @@
 
 {
     "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.PropertyNode",
+    "m_ObjectId": "424b6f06c7e14a91bd421c1d2ff75837",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Property",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -744.0,
+            "y": -280.0000305175781,
+            "width": 136.0,
+            "height": 34.00001525878906
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "60d66c55894b44099e087221567ba332"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Property": {
+        "m_Id": "0aa6684a741349fa90f491e64c3ca14c"
+    }
+}
+
+{
+    "m_SGVersion": 0,
     "m_Type": "UnityEditor.ShaderGraph.BlockNode",
     "m_ObjectId": "430cd00ee14e4f67b13ec6a8171e3f75",
     "m_Group": {
@@ -637,6 +741,40 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "VertexDescription.Tangent"
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.BlockNode",
+    "m_ObjectId": "43f33dcee6424b2784a21805dc18db35",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "SurfaceDescription.AlphaClipThreshold",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 0.0,
+            "height": 0.0
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "29913e82606f4f84b8124a23f1a17f1f"
+        }
+    ],
+    "synonyms": [],
+    "m_Precision": 0,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 0,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_SerializedDescriptor": "SurfaceDescription.AlphaClipThreshold"
 }
 
 {
@@ -806,6 +944,19 @@
     "m_Value": 0.0,
     "m_DefaultValue": 0.0,
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Texture2DArrayMaterialSlot",
+    "m_ObjectId": "60d66c55894b44099e087221567ba332",
+    "m_Id": 0,
+    "m_DisplayName": "MainTex",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_BareResource": false
 }
 
 {
@@ -1070,6 +1221,9 @@
         },
         {
             "m_Id": "0cf59bb1994c48c6a0f3e25737feb07c"
+        },
+        {
+            "m_Id": "0aa6684a741349fa90f491e64c3ca14c"
         }
     ]
 }
@@ -1219,9 +1373,9 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -423.4999694824219,
-            "y": 68.99999237060547,
-            "width": 218.49998474121095,
+            "x": -519.0,
+            "y": -197.0000457763672,
+            "width": 219.0,
             "height": 374.0
         }
     },
@@ -1578,8 +1732,8 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -651.0,
-            "y": 133.00001525878907,
+            "x": -733.0,
+            "y": -231.0000457763672,
             "width": 108.0,
             "height": 34.0
         }
@@ -1707,11 +1861,11 @@
     "m_AllowMaterialOverride": false,
     "m_SurfaceType": 1,
     "m_ZTestMode": 4,
-    "m_ZWriteControl": 0,
+    "m_ZWriteControl": 1,
     "m_AlphaMode": 0,
     "m_RenderFace": 2,
-    "m_AlphaClip": false,
-    "m_CastShadows": true,
+    "m_AlphaClip": true,
+    "m_CastShadows": false,
     "m_ReceiveShadows": true,
     "m_SupportsLODCrossFade": false,
     "m_CustomEditorGUI": "",

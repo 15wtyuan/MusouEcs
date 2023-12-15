@@ -27,39 +27,61 @@ namespace MusouEcs
                     Speed = authoring.speed,
                 });
 
-                AddComponent(entity, new MusouSpriteData
-                {
-                    TexIndex = authoring.texIndex,
-                    AtlasRect = new Vector4(authoring.atlasSize.x, authoring.atlasSize.y, 1, 1),
-                    Face = 1,
-                });
-
-                AddComponent(entity, new MusouSpriteAniData
-                {
-                    CurFrame = 1,
-                });
-
-                var scale = new float3(1, 1, 1);
-                if (authoring.texSize.x > authoring.texSize.y)
-                {
-                    scale.y = authoring.texSize.y / authoring.texSize.x;
-                }
-                else if (authoring.texSize.x < authoring.texSize.y)
-                {
-                    scale.x = authoring.texSize.x / authoring.texSize.y;
-                }
-
-                AddSharedComponent(entity, new MusouSpriteAniSharedData
+                // AddComponent(entity, new MusouSpriteData
+                // {
+                //     TexIndex = authoring.texIndex,
+                //     AtlasRect = new Vector4(authoring.atlasSize.x, authoring.atlasSize.y, 1, 1),
+                //     Face = 1,
+                // });
+                //
+                // AddComponent(entity, new MusouSpriteAniData
+                // {
+                //     CurFrame = 1,
+                // });
+                //
+                // var scale = new float3(1, 1, 1);
+                // if (authoring.texSize.x > authoring.texSize.y)
+                // {
+                //     scale.y = authoring.texSize.y / authoring.texSize.x;
+                // }
+                // else if (authoring.texSize.x < authoring.texSize.y)
+                // {
+                //     scale.x = authoring.texSize.x / authoring.texSize.y;
+                // }
+                //
+                // AddSharedComponent(entity, new MusouSpriteAniSharedData
+                // {
+                //     BeginFarme = authoring.beginFarme,
+                //     EndFarme = authoring.endFarme,
+                //     FrameRate = authoring.frameRate,
+                //     Scale = scale,
+                // });
+                
+                AddSharedComponent(entity, new MusouRenderAniSharedData
                 {
                     BeginFarme = authoring.beginFarme,
                     EndFarme = authoring.endFarme,
                     FrameRate = authoring.frameRate,
-                    Scale = scale,
+                });
+
+                AddComponent(entity, new MusouRenderFrameData
+                {
+                    Frame = authoring.beginFarme,
+                });
+
+                AddComponent(entity, new MusouRenderFaceData
+                {
+                    Face = 1,
+                });
+
+                AddComponent(entity, new MusouRenderAniData
+                {
+                    Timer = 0,
                 });
 
                 AddComponent(entity, new MoveDirectionData
                 {
-                    Direction = float3.zero,
+                    Direction = float2.zero,
                 });
             }
         }

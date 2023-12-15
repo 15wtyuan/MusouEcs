@@ -27,7 +27,8 @@ namespace MusouEcs
                 var force = SharedStaticPlayerData.SharedValue.Data.PlayerMoveDir.normalized;
                 var delta = new float3(force) * (speedData.ValueRO.Speed * deltaTime);
 
-                transform.ValueRW.Position += delta;
+                var newPos = transform.ValueRW.Position + delta;
+                transform.ValueRW.Position = new float3(newPos.x, newPos.y, newPos.y * 0.01f);
                 SharedStaticPlayerData.SharedValue.Data.PlayerPosition = (Vector3)transform.ValueRW.Position;
             }
         }
